@@ -25,8 +25,15 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.+'
-    compile 'com.android.support:design:26.+'
-    compile 'com.android.support:support-vector-drawable:26.+'
+    compile "com.android.support:appcompat-v7:$libVersions.appCompat"
+    compile "com.android.support:design:$libVersions.appCompat"
+    compile "com.android.support:support-vector-drawable:$libVersions.appCompat"
+    compile "com.android.support.constraint:constraint-layout:$libVersions.constraintLayout"
+
+    // Third party libraries
+    compile "com.squareup.retrofit2:retrofit:$libVersions.retrofit"
+    compile "io.reactivex.rxjava2:rxjava:$libVersions.rxJava"
+
+    // Testing
     testCompile 'junit:junit:4.12'
 }
