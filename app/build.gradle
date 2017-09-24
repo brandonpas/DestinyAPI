@@ -33,6 +33,8 @@ dependencies {
     // Third party libraries
     compile "com.squareup.retrofit2:retrofit:$libVersions.retrofit"
     compile "io.reactivex.rxjava2:rxjava:$libVersions.rxJava"
+    compile "com.jakewharton:butterknife:$libVersions.butterknife"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$libVersions.butterknifeCompiler"
 
     // Testing
     testCompile 'junit:junit:4.12'
