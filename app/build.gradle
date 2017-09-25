@@ -11,8 +11,14 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        manifestPlaceholders = [destinyApiKey: project.hasProperty('destiny_api_key') ? destiny_api_key : System.getenv('destiny_api_key') ]
+
     }
     buildTypes {
+        applicationVariants.all { variant ->
+            variant.buildConfigField "String", "destiny2ApiKey", destiny_api_key
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -32,7 +38,11 @@ dependencies {
 
     // Third party libraries
     compile "com.squareup.retrofit2:retrofit:$libVersions.retrofit"
+    compile "com.squareup.retrofit2:adapter-rxjava2:$libVersions.rxJavaAdapter"
+    compile "com.squareup.retrofit2:converter-gson:$libVersions.converter_gson"
+
     compile "io.reactivex.rxjava2:rxjava:$libVersions.rxJava"
+    compile "io.reactivex.rxjava2:rxandroid:$libVersions.rxAndroid"
 
     // Testing
     testCompile 'junit:junit:4.12'
