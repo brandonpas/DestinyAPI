@@ -11,17 +11,21 @@ import java.util.Map;
 public class GetPublicMilestonesResponse extends Response {
 
     @SerializedName("Response")
-    Map<String,PublicMilestonesObject> milestones;
+    Map<String,PublicMilestoneObject> milestones;
 
-    public ArrayList<PublicMilestonesObject> getMilestoneArray() {
-        ArrayList<PublicMilestonesObject> returnArray = new ArrayList<>();
+    /**
+     * Convert the milestones Map object to an ArrayList
+     * @return ArrayList of PublicMilestoneObject
+     */
+    public ArrayList<PublicMilestoneObject> getMilestoneArray() {
+        ArrayList<PublicMilestoneObject> returnArray = new ArrayList<>();
 
         if (milestones == null) {
             return returnArray;
         }
 
         for (Map.Entry entry : milestones.entrySet()) {
-            PublicMilestonesObject milestone = (PublicMilestonesObject) entry.getValue();
+            PublicMilestoneObject milestone = (PublicMilestoneObject) entry.getValue();
             returnArray.add(milestone);
         }
         return returnArray;

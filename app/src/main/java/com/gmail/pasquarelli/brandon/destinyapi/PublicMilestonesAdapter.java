@@ -6,15 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.gmail.pasquarelli.brandon.destinyapi.data.PublicMilestonesObject;
+import com.gmail.pasquarelli.brandon.destinyapi.data.PublicMilestoneObject;
 
 import java.util.ArrayList;
 
+/**
+ * Custom adapter for PublicMilestoneObject RecyclerView
+ */
 class PublicMilestonesAdapter extends RecyclerView.Adapter {
 
-    private ArrayList<PublicMilestonesObject> milestonesArray;
+    /**
+     * Data array for the adapter
+     */
+    private ArrayList<PublicMilestoneObject> milestonesArray;
 
-    PublicMilestonesAdapter(ArrayList<PublicMilestonesObject> milestones) {
+    PublicMilestonesAdapter(ArrayList<PublicMilestoneObject> milestones) {
         milestonesArray = milestones;
     }
 
@@ -29,7 +35,7 @@ class PublicMilestonesAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         TextView milestoneDescription = holder.itemView.findViewById(R.id.milestone_description);
 
-        PublicMilestonesObject milestone = milestonesArray.get(position);
+        PublicMilestoneObject milestone = milestonesArray.get(position);
         String description = "Hashcode for milestone: " + milestone.getMilestoneHash();
         milestoneDescription.setText(description);
     }
@@ -39,12 +45,19 @@ class PublicMilestonesAdapter extends RecyclerView.Adapter {
         return milestonesArray.size();
     }
 
-    void updateList(ArrayList<PublicMilestonesObject> newList) {
+    /**
+     * Method to replace the ArrayList data stored in the adapter
+     * @param newList An updated ArrayList
+     */
+    void updateList(ArrayList<PublicMilestoneObject> newList) {
         milestonesArray.clear();
         milestonesArray.addAll(newList);
         notifyDataSetChanged();
     }
 
+    /**
+     * Constructor for PublicMilestonesViewHolder
+     */
     private class PublicMilestonesViewHolder extends RecyclerView.ViewHolder {
         PublicMilestonesViewHolder(View itemView) {
             super(itemView);

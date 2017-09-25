@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.gmail.pasquarelli.brandon.destinyapi.api.ApiUtility;
 import com.gmail.pasquarelli.brandon.destinyapi.data.GetPublicMilestonesResponse;
-import com.gmail.pasquarelli.brandon.destinyapi.data.PublicMilestonesObject;
+import com.gmail.pasquarelli.brandon.destinyapi.data.PublicMilestoneObject;
 
 import java.util.ArrayList;
 
@@ -25,7 +25,7 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     private String TAG = "MainActivity";
-    private ArrayList<PublicMilestonesObject> milestoneArray = new ArrayList<>();
+    private ArrayList<PublicMilestoneObject> milestoneArray = new ArrayList<>();
     private RecyclerView milestoneRecylerView;
     private PublicMilestonesAdapter milestonesAdapter;
 
@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         fetchData();
     }
 
+    /**
+     * Initialize the RecyclerView and adapter for the PublicMilestones list.
+     */
     void setupRecyclerView() {
         milestoneRecylerView = findViewById(R.id.public_milestones_recycler_view);
         milestonesAdapter = new PublicMilestonesAdapter(milestoneArray);
@@ -74,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
         milestoneRecylerView.setAdapter(milestonesAdapter);
     }
 
+    /**
+     * Call the API Destiny2.GetPublicMilestones. When the response is received, updates the
+     * RecyclerView list with the results.
+     */
     void fetchData() {
         ApiUtility.getService().getPublicMilestones()
                 .subscribeOn(Schedulers.computation())
@@ -104,11 +111,20 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Display a pop-up message
+     * @param message Message to be displayed {@link android.widget.Toolbar Toolbar}
+     * @param duration Duration integer from {@link android.widget.Toast}
+     */
     void showToast(String message, int duration) {
         Toast.makeText(getApplicationContext(), message, duration).show();
     }
 
-    void updateMilestonesAdapter(ArrayList<PublicMilestonesObject> list) {
+    /**
+     * Update the milestones adapter with the provided list.
+     * @param list The updated list from the API
+     */
+    void updateMilestonesAdapter(ArrayList<PublicMilestoneObject> list) {
         milestonesAdapter.updateList(list);
     }
 }

@@ -2,7 +2,7 @@ package com.gmail.pasquarelli.brandon.destinyapi.data;
 
 import com.google.gson.annotations.SerializedName;
 
-public class PublicMilestonesObject {
+public class PublicMilestoneObject {
 
     @SerializedName("milestoneHash")
     String milestoneHash;

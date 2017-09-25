@@ -10,6 +10,8 @@ import retrofit2.http.Headers;
 public interface ApiService {
 
     /**
+     * Destiny2.GetPublicMilestones
+     * <p>
      * Gets public information about currently available Milestones.
      * @return An Observable object representing the API response.
      */

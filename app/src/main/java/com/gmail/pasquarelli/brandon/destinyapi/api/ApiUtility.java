@@ -1,11 +1,12 @@
 package com.gmail.pasquarelli.brandon.destinyapi.api;
 
-import com.gmail.pasquarelli.brandon.destinyapi.BuildConfig;
-
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+/**
+ * Utility class for the Retrofit client
+ */
 public class ApiUtility {
 
     private static String BASE_URL = "https://bungie.net/Platform/";
@@ -21,7 +22,7 @@ public class ApiUtility {
      * @return A standard Retrofit instance with {@link RxJava2CallAdapterFactory}
      * and {@link GsonConverterFactory} pre-set.
      */
-    public static Retrofit getClient() {
+    static Retrofit getClient() {
         if (client == null) {
             client = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
