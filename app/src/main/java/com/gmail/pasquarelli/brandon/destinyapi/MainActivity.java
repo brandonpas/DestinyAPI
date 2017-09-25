@@ -4,23 +4,30 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.gmail.pasquarelli.brandon.destinyapi.api.ApiService;
 import com.gmail.pasquarelli.brandon.destinyapi.api.ApiUtility;
 import com.gmail.pasquarelli.brandon.destinyapi.data.GetPublicMilestonesResponse;
+import com.gmail.pasquarelli.brandon.destinyapi.data.PublicMilestonesObject;
+
+import java.util.ArrayList;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     private String TAG = "MainActivity";
+    private ArrayList<PublicMilestonesObject> milestoneArray = new ArrayList<>();
+    private RecyclerView milestoneRecylerView;
+    private PublicMilestonesAdapter milestonesAdapter;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -51,18 +58,38 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        setupRecyclerView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fetchData();
+    }
+
+    void setupRecyclerView() {
+        milestoneRecylerView = findViewById(R.id.public_milestones_recycler_view);
+        milestonesAdapter = new PublicMilestonesAdapter(milestoneArray);
+        milestoneRecylerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        milestoneRecylerView.setAdapter(milestonesAdapter);
+    }
+
+    void fetchData() {
         ApiUtility.getService().getPublicMilestones()
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<GetPublicMilestonesResponse>() {
                     @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-                    }
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) { }
 
                     @Override
-                    public void onNext(@io.reactivex.annotations.NonNull GetPublicMilestonesResponse getPublicMilestonesResponse) {
+                    public void onNext(@io.reactivex.annotations.NonNull GetPublicMilestonesResponse response) {
                         Log.v(TAG,"onNext called.");
+                        if (!response.getErrorCode().equals("1")) {
+                            showToast(response.getMessage(),Toast.LENGTH_SHORT);
+                        } else {
+                            updateMilestonesAdapter(response.getMilestoneArray());
+                        }
                     }
 
                     @Override
@@ -75,7 +102,13 @@ public class MainActivity extends AppCompatActivity {
                         Log.v(TAG,"onComplete called.");
                     }
                 });
-
     }
 
+    void showToast(String message, int duration) {
+        Toast.makeText(getApplicationContext(), message, duration).show();
+    }
+
+    void updateMilestonesAdapter(ArrayList<PublicMilestonesObject> list) {
+        milestonesAdapter.updateList(list);
+    }
 }

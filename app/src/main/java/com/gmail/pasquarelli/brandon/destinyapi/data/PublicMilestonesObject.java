@@ -2,7 +2,7 @@ package com.gmail.pasquarelli.brandon.destinyapi.data;
 
 import com.google.gson.annotations.SerializedName;
 
-class PublicMilestonesObject {
+public class PublicMilestonesObject {
 
     @SerializedName("milestoneHash")
     String milestoneHash;
@@ -12,4 +12,28 @@ class PublicMilestonesObject {
 
     @SerializedName("endDate")
     String endDate;
+
+    public String getMilestoneHash() {
+        return milestoneHash;
+    }
+
+    public void setMilestoneHash(String milestoneHash) {
+        this.milestoneHash = milestoneHash;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
 }
