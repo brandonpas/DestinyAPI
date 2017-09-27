@@ -1,7 +1,11 @@
-package com.gmail.pasquarelli.brandon.destinyapi.data;
+package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Object representing JSON object for each 'Milestone' that is received
+ * when calling the 'GetPublicMilestones' API
+ */
 public class PublicMilestoneObject {
 
     @SerializedName("milestoneHash")

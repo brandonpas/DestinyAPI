@@ -1,4 +1,4 @@
-package com.gmail.pasquarelli.brandon.destinyapi.data;
+package com.gmail.pasquarelli.brandon.destinyapi.api;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
  * Base class for API responses. Only contains properties
  * that can be included in any response.
  */
-class Response {
+public class Response {
 
     @SerializedName("ErrorCode")
     String ErrorCode;

@@ -1,5 +1,6 @@
-package com.gmail.pasquarelli.brandon.destinyapi.data;
+package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model;
 
+import com.gmail.pasquarelli.brandon.destinyapi.api.Response;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;

@@ -1,26 +1,24 @@
-package com.gmail.pasquarelli.brandon.destinyapi;
+package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.view;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gmail.pasquarelli.brandon.destinyapi.api.ApiUtility;
-import com.gmail.pasquarelli.brandon.destinyapi.data.GetPublicMilestonesResponse;
-import com.gmail.pasquarelli.brandon.destinyapi.data.PublicMilestoneObject;
+import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.GetPublicMilestonesResponse;
+import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.PublicMilestoneObject;
+import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
-
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
@@ -59,12 +57,33 @@ public class MainActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         setupRecyclerView();
+        initViewModels();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        fetchData();
+    }
+
+    /**
+     * Initialize the ViewModels for this View.
+     */
+    void initViewModels() {
+        MainActivityViewModel model = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+        model.getMilestonesResponse().observe(this, new Observer<GetPublicMilestonesResponse>() {
+            @Override
+            public void onChanged(@Nullable GetPublicMilestonesResponse response) {
+                if (response == null) {
+                    showToast("Error contacting server", Toast.LENGTH_SHORT);
+                    return;
+                }
+                if (!response.getErrorCode().equals("1")) {
+                    showToast(response.getMessage(), Toast.LENGTH_SHORT);
+                } else {
+                    updateMilestonesAdapter(response.getMilestoneArray());
+                }
+            }
+        });
     }
 
     /**
@@ -75,40 +94,6 @@ public class MainActivity extends AppCompatActivity {
         milestonesAdapter = new PublicMilestonesAdapter(milestoneArray);
         milestoneRecylerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         milestoneRecylerView.setAdapter(milestonesAdapter);
-    }
-
-    /**
-     * Call the API Destiny2.GetPublicMilestones. When the response is received, updates the
-     * RecyclerView list with the results.
-     */
-    void fetchData() {
-        ApiUtility.getService().getPublicMilestones()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<GetPublicMilestonesResponse>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) { }
-
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull GetPublicMilestonesResponse response) {
-                        Log.v(TAG,"onNext called.");
-                        if (!response.getErrorCode().equals("1")) {
-                            showToast(response.getMessage(),Toast.LENGTH_SHORT);
-                        } else {
-                            updateMilestonesAdapter(response.getMilestoneArray());
-                        }
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        Log.v(TAG,"onError called.");
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.v(TAG,"onComplete called.");
-                    }
-                });
     }
 
     /**

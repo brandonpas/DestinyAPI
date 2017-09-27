@@ -1,4 +1,4 @@
-package com.gmail.pasquarelli.brandon.destinyapi;
+package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.view;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.gmail.pasquarelli.brandon.destinyapi.data.PublicMilestoneObject;
+import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.PublicMilestoneObject;
 
 import java.util.ArrayList;
 

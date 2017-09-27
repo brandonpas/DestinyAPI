@@ -8,7 +8,7 @@
     android:layout_marginRight="8dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gmail.pasquarelli.brandon.destinyapi.MainActivity">
+    tools:context=".publicmilestoneslist.view.MainActivity">
 
 
     <TextView
