@@ -9,6 +9,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        MainActivityViewModel model = ViewModelProviders.of(this).get(MainActivityViewModel.class);
+        model.fetchMilestonesResponse();
     }
 
     /**
@@ -73,14 +76,12 @@ public class MainActivity extends AppCompatActivity {
         model.getMilestonesResponse().observe(this, new Observer<GetPublicMilestonesResponse>() {
             @Override
             public void onChanged(@Nullable GetPublicMilestonesResponse response) {
+                Log.v(TAG,"onChanged Called");
+                milestonesAdapter.notifyDataSetChanged();
                 if (response == null) {
                     showToast("Error contacting server", Toast.LENGTH_SHORT);
-                    return;
-                }
-                if (!response.getErrorCode().equals("1")) {
+                } else if (!response.getErrorCode().equals("1")) {
                     showToast(response.getMessage(), Toast.LENGTH_SHORT);
-                } else {
-                    updateMilestonesAdapter(response.getMilestoneArray());
                 }
             }
         });
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
      */
     void setupRecyclerView() {
         milestoneRecylerView = findViewById(R.id.public_milestones_recycler_view);
-        milestonesAdapter = new PublicMilestonesAdapter(milestoneArray);
+        milestonesAdapter = new PublicMilestonesAdapter(this);
         milestoneRecylerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         milestoneRecylerView.setAdapter(milestonesAdapter);
     }
@@ -103,13 +104,5 @@ public class MainActivity extends AppCompatActivity {
      */
     void showToast(String message, int duration) {
         Toast.makeText(getApplicationContext(), message, duration).show();
-    }
-
-    /**
-     * Update the milestones adapter with the provided list.
-     * @param list The updated list from the API
-     */
-    void updateMilestonesAdapter(ArrayList<PublicMilestoneObject> list) {
-        milestonesAdapter.updateList(list);
     }
 }

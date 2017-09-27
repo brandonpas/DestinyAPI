@@ -1,5 +1,9 @@
 package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.view;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +12,7 @@ import android.widget.TextView;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.PublicMilestoneObject;
+import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
 
@@ -16,13 +21,10 @@ import java.util.ArrayList;
  */
 class PublicMilestonesAdapter extends RecyclerView.Adapter {
 
-    /**
-     * Data array for the adapter
-     */
-    private ArrayList<PublicMilestoneObject> milestonesArray;
+    private MainActivityViewModel viewModel;
 
-    PublicMilestonesAdapter(ArrayList<PublicMilestoneObject> milestones) {
-        milestonesArray = milestones;
+    PublicMilestonesAdapter(MainActivity activity) {
+        viewModel = ViewModelProviders.of(activity).get(MainActivityViewModel.class);
     }
 
     @Override
@@ -36,24 +38,14 @@ class PublicMilestonesAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         TextView milestoneDescription = holder.itemView.findViewById(R.id.milestone_description);
 
-        PublicMilestoneObject milestone = milestonesArray.get(position);
+        PublicMilestoneObject milestone = viewModel.getMilestonesArray().get(position);
         String description = "Hashcode for milestone: " + milestone.getMilestoneHash();
         milestoneDescription.setText(description);
     }
 
     @Override
     public int getItemCount() {
-        return milestonesArray.size();
-    }
-
-    /**
-     * Method to replace the ArrayList data stored in the adapter
-     * @param newList An updated ArrayList
-     */
-    void updateList(ArrayList<PublicMilestoneObject> newList) {
-        milestonesArray.clear();
-        milestonesArray.addAll(newList);
-        notifyDataSetChanged();
+        return viewModel.getMilestonesArray().size();
     }
 
     /**
