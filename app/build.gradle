@@ -46,6 +46,11 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:1.0.0-beta1"
 //    compile "android.arch.lifecycle:common-java8:1.0.0-beta1"
 
+    // Room
+    compile "android.arch.persistence.room:runtime:1.0.0-beta1"
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0-beta1"
+    compile "android.arch.persistence.room:rxjava2:1.0.0-beta1"
+
     // Third party libraries
     compile "com.jakewharton:butterknife:$libVersions.butterknife"
     annotationProcessor "com.jakewharton:butterknife-compiler:$libVersions.butterknifeCompiler"

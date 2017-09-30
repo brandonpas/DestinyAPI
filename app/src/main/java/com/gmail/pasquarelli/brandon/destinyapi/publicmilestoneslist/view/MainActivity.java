@@ -2,6 +2,7 @@ package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.view;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.arch.persistence.room.Room;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,20 +12,24 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.database.AppDatabase;
+import com.gmail.pasquarelli.brandon.destinyapi.database.ContentDatabase;
+import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.ContentMilestoneEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.GetPublicMilestonesResponse;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.PublicMilestoneObject;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private TextView mTextMessage;
     private String TAG = "MainActivity";
-    private ArrayList<PublicMilestoneObject> milestoneArray = new ArrayList<>();
     private RecyclerView milestoneRecylerView;
     private PublicMilestonesAdapter milestonesAdapter;
 
@@ -66,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         MainActivityViewModel model = ViewModelProviders.of(this).get(MainActivityViewModel.class);
         model.fetchMilestonesResponse();
+
+        ContentDatabase db = Room.databaseBuilder(getApplicationContext(),
+                ContentDatabase.class, "world_sql_content.db").build();
+        model.testDatabase(db);
     }
 
     /**
@@ -83,6 +92,13 @@ public class MainActivity extends AppCompatActivity {
                 } else if (!response.getErrorCode().equals("1")) {
                     showToast(response.getMessage(), Toast.LENGTH_SHORT);
                 }
+            }
+        });
+
+        model.getContentMilestones().observe(this, new Observer<List<ContentMilestoneEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<ContentMilestoneEntity> contentMilestoneEntities) {
+                mTextMessage.setText("DB results: " + contentMilestoneEntities.size());
             }
         });
     }
