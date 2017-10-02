@@ -3,4 +3,13 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <!-- Database Info -->
+    <string name="prepackaged_db_location">databases/world_sql_content.db</string>
+
+    <!-- Shared Preferences -->
+    <string name="prepackaged_db_relocated">pre_packaged_db_relocated</string>
+
+    <!-- MainActivity screen -->
+    <string name="relocate_db_fail_toast">Issue transferring data</string>
 </resources>

@@ -20,13 +20,21 @@ public class AppMilestoneEntity {
 
     @PrimaryKey
     @NonNull
-    @SerializedName("hashCode")
+    @SerializedName("hash")
     public String hashCode;
 
-    @ColumnInfo(name = "name")
-    public String name;
+    @SerializedName("displayProperties")
+    public DisplayProperties displayProperties;
 
-    @ColumnInfo(name = "description")
-    public String description;
+
+
+    class DisplayProperties {
+
+        @ColumnInfo(name = "name")
+        public String name;
+
+        @ColumnInfo(name = "description")
+        public String description;
+    }
 
 }

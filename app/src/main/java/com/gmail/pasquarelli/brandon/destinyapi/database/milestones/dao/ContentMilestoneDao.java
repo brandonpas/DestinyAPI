@@ -22,5 +22,11 @@ public interface ContentMilestoneDao {
      * Get each ContentMilestoneEntity definition object
      */
     @Query("SELECT * FROM " + DatabaseStructure.CONTENT_MILESTONES_TABLE_NAME)
-    Single<List<ContentMilestoneEntity>> getMilestoneFromList();
+    Single<List<ContentMilestoneEntity>> getMilestoneFromListAsync();
+
+    /**
+     * Get each ContentMilestoneEntity definition object
+     */
+    @Query("SELECT * FROM " + DatabaseStructure.CONTENT_MILESTONES_TABLE_NAME)
+    List<ContentMilestoneEntity> getMilestoneFromList();
 }

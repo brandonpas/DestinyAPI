@@ -3,9 +3,15 @@ package com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.util.TableInfo;
 import android.support.annotation.NonNull;
 
 import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 /**
  * This entity represents the DestinyMilestoneDefinition table provided by Bungie in the
@@ -20,9 +26,12 @@ public class ContentMilestoneEntity {
 
     @PrimaryKey
     @NonNull
-    public String id;
+    public int id;
 
-    @ColumnInfo(name = "json")
-    public String json;
+    @ColumnInfo(name = "json", typeAffinity = ColumnInfo.BLOB)
+    public byte[] json;
 
+    public Reader getJsonAsStream() {
+        return new InputStreamReader(new ByteArrayInputStream(this.json));
+    }
 }
