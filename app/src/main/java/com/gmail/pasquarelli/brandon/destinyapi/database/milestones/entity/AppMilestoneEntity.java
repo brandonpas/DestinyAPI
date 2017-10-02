@@ -1,7 +1,9 @@
 package com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity;
 
 import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
@@ -23,12 +25,28 @@ public class AppMilestoneEntity {
     @SerializedName("hash")
     public String hashCode;
 
+    @Embedded
     @SerializedName("displayProperties")
     public DisplayProperties displayProperties;
 
 
+    public String getName() {
+        if (displayProperties != null) {
+            return this.displayProperties.name;
+        } else {
+            return this.hashCode != null ? hashCode : "No Hash";
+        }
+    }
 
-    class DisplayProperties {
+    public String getDescription() {
+        if (displayProperties != null) {
+            return displayProperties.description;
+        } else {
+            return "No Description";
+        }
+    }
+
+    public static class DisplayProperties {
 
         @ColumnInfo(name = "name")
         public String name;

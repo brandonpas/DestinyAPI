@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableObserver;
 import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
@@ -33,11 +34,7 @@ public class MainActivityViewModel extends ViewModel {
 
     private String TAG = "MainActivityVM";
     private MutableLiveData<GetPublicMilestonesResponse> milestonesResponse;
-    private ArrayList<PublicMilestoneObject> milestoneArray = new ArrayList<>();
-//    private ArrayList<AppMilestoneEntity> milestoneArray = new ArrayList<>();
-
-
-    private MutableLiveData<List<ContentMilestoneEntity>> testList;
+    private ArrayList<AppMilestoneEntity> milestoneArray = new ArrayList<>();
 
     /**
      * Used to retrieve an observable instance of the {@link GetPublicMilestonesResponse} object.
@@ -51,58 +48,14 @@ public class MainActivityViewModel extends ViewModel {
         return milestonesResponse;
     }
 
-    public LiveData<List<ContentMilestoneEntity>> getContentMilestones() {
-        if (testList == null) {
-            testList = new MutableLiveData<>();
-        }
-        return testList;
-    }
-
     /**
      * Used by the PublicMilestonesAdapter to retrieve the milestone array. This is a separate
      * call for the adapter so that we don't call the API for each item in the list when building
      * the row's layout.
      * @return ArrayList of PublicMilestoneObject
      */
-    public ArrayList<PublicMilestoneObject> getMilestonesArray() {
+    public ArrayList<AppMilestoneEntity> getMilestonesArray() {
         return milestoneArray;
-    }
-
-    /**
-     * Call the API Destiny2.GetPublicMilestones asynchronously. When the response is received, updates the
-     * observable which emits the change to any observers.
-     */
-    public void fetchMilestonesResponse() {
-
-        // Start by clearing stale results
-        milestoneArray.clear();
-
-        // Call API to retrieve updated list
-        ApiUtility.getService().getPublicMilestones()
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<GetPublicMilestonesResponse>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) { }
-
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull GetPublicMilestonesResponse response) {
-                        Log.v(TAG,"onNext called.");
-                        milestonesResponse.setValue(response);
-                        milestoneArray.addAll(response.getMilestoneArray());
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        Log.v(TAG,"onError called.");
-                        milestonesResponse.setValue(null);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.v(TAG,"onComplete called.");
-                    }
-                });
     }
 
     /**
@@ -118,35 +71,6 @@ public class MainActivityViewModel extends ViewModel {
             }
         });
     }
-
-    public void testDatabase(ContentDatabase db) {
-        db.contentMilestoneDao()
-                .getMilestoneFromListAsync()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new SingleObserver<List<ContentMilestoneEntity>>() {
-                    @Override
-                    public void onSubscribe(@NonNull Disposable d) { }
-
-                    @Override
-                    public void onSuccess(@NonNull List<ContentMilestoneEntity> contentMilestoneEntities) {
-                        Log.v(TAG,"testDatabase onSuccess. list size: " + contentMilestoneEntities.size());
-                        testList.setValue(contentMilestoneEntities);
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable e) {
-                        Log.v(TAG,"testDatabase onError");
-                        e.printStackTrace();
-                    }
-                });
-    }
-
-    public Single<List<AppMilestoneEntity>> testAppDatabase(AppDatabase db) {
-        return db.appMilestoneDao()
-                .getAllMilestones();
-    }
-
 
     /**
      * This is called from the MainActivity and will occur on a background thread; for this reason,
@@ -166,5 +90,80 @@ public class MainActivityViewModel extends ViewModel {
         });
     }
 
-//    public void retrieveMilestoneDetails()
+    /**
+     * Call the API to retreive the current milestones for the week. 
+     * <p>
+     * This function will occur on a background thread.
+     */
+    public void retrieveMilestoneDetails(final AppDatabase appDatabase) {
+        milestoneArray.clear();
+
+        // Call API to retrieve updated list
+        ApiUtility.getService().getPublicMilestones()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<GetPublicMilestonesResponse>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) { }
+
+                    @Override
+                    public void onNext(@NonNull GetPublicMilestonesResponse getPublicMilestonesResponse) {
+                        Log.v(TAG,"retrieveMilestoneDetails onNext");
+                        updateList(appDatabase, getPublicMilestonesResponse);
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        Log.v(TAG,"retrieveMilestoneDetails onError");
+                        e.printStackTrace();
+                        milestonesResponse.setValue(null);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.v(TAG,"retrieveMilestoneDetails onComplete");
+                    }
+                });
+
+    }
+
+    /**
+     * Called when we receive the response from the API. This will extract the milestone hashcodes
+     * and query our app database for the details for each milestone.
+     * <p/>
+     * ** This feels clunky and might need to be revisited at some point. **
+     * @param appDatabase Our app database.
+     * @param apiResponse The response from the API endpoint.
+     */
+    void updateList(final AppDatabase appDatabase, final GetPublicMilestonesResponse apiResponse){
+        Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                // If we received results
+                if (apiResponse != null && apiResponse.getErrorCode().equals("1")){
+                    milestoneArray.addAll(appDatabase.appMilestoneDao()
+                            .getMilestoneFromList(apiResponse.getMilestonesHash()));
+                }
+            }
+        }).subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) { }
+
+            @Override
+            public void onComplete() {
+                Log.v(TAG,"updateList onComplete");
+
+                // This will trigger the Activity to call notifyDataSetChanged
+                milestonesResponse.setValue(apiResponse);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.v(TAG,"updateList onError");
+                e.printStackTrace();
+            }
+        });
+    }
 }

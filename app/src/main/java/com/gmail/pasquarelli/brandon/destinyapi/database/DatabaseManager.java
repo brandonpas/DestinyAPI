@@ -91,8 +91,10 @@ public class DatabaseManager {
         List<AppMilestoneEntity> appMilestoneList = new ArrayList<>();
 
         for (ContentMilestoneEntity jsonMilestone : contentList) {
+            Log.v(TAG, String.valueOf(jsonMilestone.getId()));
+//            Log.v(TAG, jsonMilestone.getJsonAsStream().toString());
             AppMilestoneEntity appMilestone =
-                    gson.fromJson(jsonMilestone.getJsonAsStream(), AppMilestoneEntity.class);
+                    gson.fromJson(jsonMilestone.getJsonStream(), AppMilestoneEntity.class);
             appMilestoneList.add(appMilestone);
         }
         appDao.insertMilestoneList(appMilestoneList);

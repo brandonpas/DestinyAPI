@@ -31,4 +31,17 @@ public class GetPublicMilestonesResponse extends Response {
         }
         return returnArray;
     }
+
+    public ArrayList<String> getMilestonesHash() {
+        ArrayList<String> returnList = new ArrayList<>();
+        if (milestones == null) {
+            return returnList;
+        }
+
+        for (Map.Entry entry : milestones.entrySet()) {
+            PublicMilestoneObject milestone = (PublicMilestoneObject) entry.getValue();
+            returnList.add(milestone.getMilestoneHash());
+        }
+        return returnList;
+    }
 }

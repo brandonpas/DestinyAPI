@@ -3,4 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="milestone_background">#535353</color>
+    <color name="milestone_name">#eaeaea</color>
+    <color name="milestone_description">#ababab</color>
+
 </resources>

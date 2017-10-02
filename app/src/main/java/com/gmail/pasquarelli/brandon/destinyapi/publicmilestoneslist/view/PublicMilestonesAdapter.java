@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.AppMilestoneEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.PublicMilestoneObject;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.MainActivityViewModel;
 
@@ -31,11 +32,14 @@ class PublicMilestonesAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        TextView milestoneName = holder.itemView.findViewById(R.id.milestone_name);
         TextView milestoneDescription = holder.itemView.findViewById(R.id.milestone_description);
 
-        PublicMilestoneObject milestone = viewModel.getMilestonesArray().get(position);
-        String description = "Hashcode for milestone: " + milestone.getMilestoneHash();
-        milestoneDescription.setText(description);
+        AppMilestoneEntity milestone = viewModel.getMilestonesArray().get(position);
+
+
+        milestoneName.setText(milestone.getName());
+        milestoneDescription.setText(milestone.getDescription());
     }
 
     @Override

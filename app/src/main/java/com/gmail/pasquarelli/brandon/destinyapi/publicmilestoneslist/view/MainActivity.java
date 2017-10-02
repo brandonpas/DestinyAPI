@@ -83,15 +83,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        model.fetchMilestonesResponse();
-
-//        ContentDatabase db = Room.databaseBuilder(getApplicationContext(),
-//                ContentDatabase.class, DatabaseStructure.CONTENT_DB_NAME)
-//                .addMigrations(DatabaseManager.persistDatabaseProvided)
-//                .build();
-
-//        model.testDatabase(db);
-
+        fetchThisWeeksMilestones();
     }
 
     /**
@@ -119,12 +111,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        model.getContentMilestones().observe(this, new Observer<List<ContentMilestoneEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<ContentMilestoneEntity> contentMilestoneEntities) {
-                mTextMessage.setText("DB results: " + contentMilestoneEntities.size());
-            }
-        });
     }
 
     /**
@@ -222,6 +208,16 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    /**
+     * Invoke the API to retrieve and convert milestone data to usable list.
+     * When complete, notify the adapter that the data-set changed.
+     */
+    void fetchThisWeeksMilestones() {
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
+                AppDatabase.class, DatabaseStructure.APP_DB_NAME).build();
+        model.retrieveMilestoneDetails(db);
     }
 
 

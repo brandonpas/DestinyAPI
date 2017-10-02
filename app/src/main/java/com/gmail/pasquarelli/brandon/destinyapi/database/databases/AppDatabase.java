@@ -8,7 +8,7 @@ import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.dao.AppMiles
 
 @Database(entities = {
         AppMilestoneEntity.class },
-        version = 1,
+        version = 2,
         exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract AppMilestoneDao appMilestoneDao();

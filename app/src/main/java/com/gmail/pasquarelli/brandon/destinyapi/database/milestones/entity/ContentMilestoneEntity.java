@@ -7,6 +7,7 @@ import android.arch.persistence.room.util.TableInfo;
 import android.support.annotation.NonNull;
 
 import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
+import com.google.gson.stream.JsonReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -33,5 +34,15 @@ public class ContentMilestoneEntity {
 
     public Reader getJsonAsStream() {
         return new InputStreamReader(new ByteArrayInputStream(this.json));
+    }
+
+    public JsonReader getJsonStream() {
+        JsonReader reader = new JsonReader(getJsonAsStream());
+        reader.setLenient(true);
+        return reader;
+    }
+
+    public int getId() {
+        return id;
     }
 }

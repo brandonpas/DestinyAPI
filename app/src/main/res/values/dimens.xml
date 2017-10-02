@@ -2,7 +2,16 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="row_item_margin">16dp</dimen>
+    <dimen name="row_item__margin_from_image">16dp</dimen>
+    <dimen name="row_item_image_height_width">40dp</dimen>
+    <dimen name="row_item_height">72dp</dimen>
 
     <!-- Get Public Milestones screen -->
     <dimen name="public_milestones_row_item_height">32dp</dimen>
+    <dimen name="milestone_name_text_size">18sp</dimen>
+    <dimen name="milestone_description_text_size">12sp</dimen>
+
+
+
 </resources>
