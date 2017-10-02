@@ -11,23 +11,17 @@ import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseManager;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.AppDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.ContentDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.AppMilestoneEntity;
-import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.ContentMilestoneEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.GetPublicMilestonesResponse;
-import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.PublicMilestoneObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.Observer;
-import io.reactivex.Single;
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivityViewModel extends ViewModel {
@@ -91,7 +85,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     /**
-     * Call the API to retreive the current milestones for the week. 
+     * Call the API to retreive the current milestones for the week.
      * <p>
      * This function will occur on a background thread.
      */

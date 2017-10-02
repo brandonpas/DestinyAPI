@@ -21,11 +21,8 @@ import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.AppDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.ContentDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
-import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.ContentMilestoneEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.GetPublicMilestonesResponse;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.MainActivityViewModel;
-
-import java.util.List;
 
 import io.reactivex.CompletableObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
