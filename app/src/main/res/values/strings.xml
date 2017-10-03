@@ -12,4 +12,7 @@
 
     <!-- MainActivity screen -->
     <string name="relocate_db_fail_toast">Issue transferring data</string>
+
+    <!-- Milestones screen -->
+    <string name="milestones_label">MILESTONES</string>
 </resources>

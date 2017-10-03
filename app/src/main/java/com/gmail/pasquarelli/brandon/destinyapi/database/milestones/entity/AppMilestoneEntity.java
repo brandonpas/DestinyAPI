@@ -5,7 +5,6 @@ import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
 
 import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
 import com.google.gson.annotations.SerializedName;
@@ -20,20 +19,24 @@ import com.google.gson.annotations.SerializedName;
 public class AppMilestoneEntity {
 
     @PrimaryKey
-    @NonNull
     @SerializedName("hash")
     public String hashCode;
+
+    @ColumnInfo(name = "friendlyName")
+    @SerializedName("friendlyName")
+    public String friendlyName;
 
     @Embedded
     @SerializedName("displayProperties")
     public DisplayProperties displayProperties;
 
-
     public String getName() {
         if (displayProperties != null) {
             return this.displayProperties.name;
+        } else if (friendlyName != null) {
+            return friendlyName;
         } else {
-            return this.hashCode != null ? hashCode : "No Hash";
+            return hashCode;
         }
     }
 
@@ -41,7 +44,15 @@ public class AppMilestoneEntity {
         if (displayProperties != null) {
             return displayProperties.description;
         } else {
-            return "No Description";
+            return "";
+        }
+    }
+
+    public String getIconUrl() {
+        if (displayProperties != null) {
+            return "http://www.bungie.net" + displayProperties.iconUrl;
+        } else {
+            return null;
         }
     }
 
@@ -52,6 +63,10 @@ public class AppMilestoneEntity {
 
         @ColumnInfo(name = "description")
         public String description;
+
+        @ColumnInfo(name = "icon")
+        @SerializedName("icon")
+        public String iconUrl;
     }
 
 }

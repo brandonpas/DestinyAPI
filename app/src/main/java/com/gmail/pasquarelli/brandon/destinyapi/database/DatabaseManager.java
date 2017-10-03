@@ -88,7 +88,6 @@ public class DatabaseManager {
 
         for (ContentMilestoneEntity jsonMilestone : contentList) {
             Log.v(TAG, String.valueOf(jsonMilestone.getId()));
-//            Log.v(TAG, jsonMilestone.getJsonAsStream().toString());
             AppMilestoneEntity appMilestone =
                     gson.fromJson(jsonMilestone.getJsonStream(), AppMilestoneEntity.class);
             appMilestoneList.add(appMilestone);

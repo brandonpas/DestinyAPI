@@ -5,22 +5,23 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.AppMilestoneEntity;
-import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.PublicMilestoneObject;
-import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.MainActivityViewModel;
+import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.WeeklyMilestonesViewModel;
 
 /**
  * Custom adapter for PublicMilestoneObject RecyclerView
  */
 class PublicMilestonesAdapter extends RecyclerView.Adapter {
 
-    private MainActivityViewModel viewModel;
+    private WeeklyMilestonesViewModel viewModel;
 
-    PublicMilestonesAdapter(MainActivity activity) {
-        viewModel = ViewModelProviders.of(activity).get(MainActivityViewModel.class);
+    PublicMilestonesAdapter(WeeklyMilestonesActivity activity) {
+        viewModel = ViewModelProviders.of(activity).get(WeeklyMilestonesViewModel.class);
     }
 
     @Override
@@ -32,11 +33,21 @@ class PublicMilestonesAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        TextView milestoneName = holder.itemView.findViewById(R.id.milestone_name);
-        TextView milestoneDescription = holder.itemView.findViewById(R.id.milestone_description);
+        View itemView = holder.itemView;
+        TextView milestoneName = itemView.findViewById(R.id.milestone_name);
+        TextView milestoneDescription = itemView.findViewById(R.id.milestone_description);
+        ImageView milestoneImage = itemView.findViewById(R.id.milestone_image);
+
 
         AppMilestoneEntity milestone = viewModel.getMilestonesArray().get(position);
 
+        // Utilize the Glide library to download image via the URL
+        // and insert into the ImageView
+        if (milestone.displayProperties != null) {
+            Glide.with(itemView.getContext())
+                    .load(milestone.getIconUrl())
+                    .into(milestoneImage);
+        }
 
         milestoneName.setText(milestone.getName());
         milestoneDescription.setText(milestone.getDescription());

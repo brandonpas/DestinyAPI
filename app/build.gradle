@@ -46,6 +46,10 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:1.0.0-beta1"
 //    compile "android.arch.lifecycle:common-java8:1.0.0-beta1"
 
+    // Glide
+    compile "com.github.bumptech.glide:glide:$libVersions.glide"
+    annotationProcessor "com.github.bumptech.glide:compiler:$libVersions.glideAnnotation"
+
     // Room
     compile "android.arch.persistence.room:runtime:1.0.0-beta1"
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0-beta1"

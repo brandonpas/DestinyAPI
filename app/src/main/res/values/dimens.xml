@@ -6,6 +6,8 @@
     <dimen name="row_item__margin_from_image">16dp</dimen>
     <dimen name="row_item_image_height_width">40dp</dimen>
     <dimen name="row_item_height">72dp</dimen>
+    <dimen name="screen_label_text">30sp</dimen>
+    <dimen name="screen_label_separator_margin">16dp</dimen>
 
     <!-- Get Public Milestones screen -->
     <dimen name="public_milestones_row_item_height">32dp</dimen>
