@@ -30,7 +30,6 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
     private WeeklyMilestonesViewModel model;
 
     // Views and adapters
-
     private PublicMilestonesAdapter milestonesAdapter;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -65,9 +64,7 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
 
         if (!isDatabaseInitialized()) {
             SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-
-            model.relocateDatabase(getApplicationContext(),
-                    preferences);
+            model.relocateDatabase(this, preferences);
         }
     }
 
@@ -105,7 +102,7 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
         model.getToastMessage().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String message) {
-                showToast(message, Toast.LENGTH_SHORT);
+                showToast(message, Toast.LENGTH_LONG);
             }
         });
     }

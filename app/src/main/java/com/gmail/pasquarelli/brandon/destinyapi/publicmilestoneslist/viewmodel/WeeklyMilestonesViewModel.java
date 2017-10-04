@@ -77,8 +77,7 @@ public class WeeklyMilestonesViewModel extends ViewModel {
      * a message if the database failed to move.
      */
     public void relocateDatabase(final Context context, final SharedPreferences preferences) {
-        String sourceDbLocation = context.getString(R.string.prepackaged_db_location);
-        moveDatabase(context, sourceDbLocation)
+        moveDatabase(context)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CompletableObserver() {
@@ -116,11 +115,17 @@ public class WeeklyMilestonesViewModel extends ViewModel {
      * the Room library expects.
      * @param context Application Context
      */
-    private Completable moveDatabase(final Context context, final String sourceDatabaseLocation){
+    private Completable moveDatabase(final Context context){
         return Completable.fromAction(new Action() {
             @Override
             public void run() throws Exception {
-                DatabaseManager.moveDatabaseFromAssets(context, sourceDatabaseLocation);
+                boolean success = DatabaseManager.moveDatabaseFromAssets(context);
+                if (!success) {
+                    // Trigger an error so the Completable calls onError
+                    // instead of assuming that it was successful and preventing this process from
+                    // running again.
+                    throw new Exception("Database copy failed");
+                }
             }
         });
     }
@@ -149,7 +154,7 @@ public class WeeklyMilestonesViewModel extends ViewModel {
     }
 
     /**
-     * Call the API to retreive the current milestones for the week.
+     * Call the API to retrieve the current milestones for the week.
      * <p>
      * This function will occur on a background thread.
      */

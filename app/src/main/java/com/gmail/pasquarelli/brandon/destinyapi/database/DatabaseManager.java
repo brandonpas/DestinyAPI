@@ -6,6 +6,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.AppDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.ContentDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.dao.AppMilestoneDao;
@@ -25,12 +26,17 @@ import java.util.List;
 public class DatabaseManager {
     private static String TAG = "DatabaseManager";
 
-    public static boolean moveDatabaseFromAssets(Context context, String prepackagedDB) {
+    /**
+     *
+     * @param context Reference to the activity's context
+     * @return
+     */
+    public static boolean moveDatabaseFromAssets(Context context) {
         boolean operationCompleted = false;
         try {
 
             final String filePath = "/data/data/" + context.getPackageName() + "/databases/";
-
+            final String prepackagedDB = context.getString(R.string.prepackaged_db_location);
             InputStream existingDatabaseStream = context.getAssets().open(prepackagedDB);
 
 
@@ -49,7 +55,7 @@ public class DatabaseManager {
             }
 
             newDatabaseStream.flush();
-            newDatabaseStream.close();
+            existingDatabaseStream.close();
             newDatabaseStream.close();
 
             Log.v(TAG,newDatabaseName + " copied");
