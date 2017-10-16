@@ -3,4 +3,20 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <!-- Database Info -->
+    <string name="prepackaged_db_location">databases/world_sql_content.db</string>
+    <string name="db_version">60088.17.09.26.2246-4</string>
+    <string name="relocate_db_failed">Unable to reach content data</string>
+
+    <!-- Shared Preferences -->
+    <string name="pref_packaged_db_relocated">pre_packaged_db_relocated</string>
+    <string name="pref_current_db_version">current_db_version</string>
+
+    <!-- MainActivity screen -->
+    <string name="relocate_db_fail_toast">Issue transferring data</string>
+
+
+    <!-- Milestones screen -->
+    <string name="milestones_label">MILESTONES</string>
 </resources>

@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 android {
     compileSdkVersion 26
@@ -11,7 +26,8 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        manifestPlaceholders = [destinyApiKey: project.hasProperty('destiny_api_key') ? destiny_api_key : System.getenv('destiny_api_key') ]
+        manifestPlaceholders.destinyApiKey = project.hasProperty('destiny_api_key') ? destiny_api_key : System.getenv('destiny_api_key')
+        manifestPlaceholders.crashlyticsKey = project.hasProperty('crashlitics_api_key') ? crashlitics_api_key : System.getenv('crashlitics_api_key')
 
     }
     buildTypes {
@@ -31,6 +47,7 @@ android {
     }
 }
 
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -41,10 +58,14 @@ dependencies {
     compile "com.android.support:support-vector-drawable:$libVersions.appCompat"
     compile "com.android.support.constraint:constraint-layout:$libVersions.constraintLayout"
 
-    compile "android.arch.lifecycle:runtime:1.0.0"
-    compile "android.arch.lifecycle:extensions:1.0.0-beta1"
-    annotationProcessor "android.arch.lifecycle:compiler:1.0.0-beta1"
-//    compile "android.arch.lifecycle:common-java8:1.0.0-beta1"
+    //    compile "android.arch.lifecycle:common-java8:1.0.0-beta1"
+
+    // Glide
+    compile "com.github.bumptech.glide:glide:$libVersions.glide"
+    annotationProcessor "com.github.bumptech.glide:compiler:$libVersions.glideAnnotation"
+
+    // Room
+    
 
     // Third party libraries
     compile "com.jakewharton:butterknife:$libVersions.butterknife"
@@ -58,5 +79,15 @@ dependencies {
     compile "io.reactivex.rxjava2:rxandroid:$libVersions.rxAndroid"
 
     // Testing
+    compile 'android.arch.lifecycle:runtime:1.0.0'
+    compile 'android.arch.lifecycle:extensions:1.0.0-beta1'
+    compile 'android.arch.persistence.room:runtime:1.0.0-beta1'
+    compile 'android.arch.persistence.room:rxjava2:1.0.0-beta1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     testCompile 'junit:junit:4.12'
+    annotationProcessor 'android.arch.lifecycle:compiler:1.0.0-beta1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.0.0-beta1'
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
+        transitive = true;
+    }
 }

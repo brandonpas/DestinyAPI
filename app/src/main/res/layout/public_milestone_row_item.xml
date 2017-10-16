@@ -1,15 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/public_milestones_row_item_height"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="@dimen/row_item_height">
+
+    <ImageView
+        android:id="@+id/milestone_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="@dimen/row_item_margin"
+        android:src="@drawable/ic_photo_white_36dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/milestone_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/row_item_margin"
+        android:layout_marginTop="@dimen/row_item_margin"
+        android:text="Name"
+        android:textColor="@color/milestone_name"
+        android:textSize="@dimen/milestone_name_text_size"
+        app:layout_constraintLeft_toRightOf="@+id/milestone_image"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="@dimen/row_item_margin" />
 
     <TextView
         android:id="@+id/milestone_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        android:layout_marginLeft="@dimen/row_item_margin"
+        android:text="Description"
+        android:textColor="@color/milestone_description"
+        android:textSize="@dimen/milestone_description_text_size"
+        app:layout_constraintLeft_toRightOf="@+id/milestone_image"
+        app:layout_constraintTop_toBottomOf="@+id/milestone_name"
+        android:layout_marginStart="@dimen/row_item_margin" />
 
 </android.support.constraint.ConstraintLayout>
