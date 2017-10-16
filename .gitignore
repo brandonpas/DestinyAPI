@@ -9,3 +9,7 @@
 .externalNativeBuild
 /.idea
 gradle.properties
+
+// fonts
+*.ttf
+*.otf
