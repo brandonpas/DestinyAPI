@@ -1,5 +1,6 @@
 package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model;
 
+import com.gmail.pasquarelli.brandon.destinyapi.utils.Conversions;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -19,6 +20,10 @@ public class PublicMilestoneObject {
 
     public String getMilestoneHash() {
         return milestoneHash;
+    }
+
+    public int getSignedHashCode() {
+        return Conversions.parseUnsignedInt(milestoneHash);
     }
 
     public void setMilestoneHash(String milestoneHash) {

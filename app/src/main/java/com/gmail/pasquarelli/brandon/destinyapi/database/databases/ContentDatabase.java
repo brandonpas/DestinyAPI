@@ -3,8 +3,8 @@ package com.gmail.pasquarelli.brandon.destinyapi.database.databases;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.RoomDatabase;
 
-import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.dao.ContentMilestoneDao;
-import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.ContentMilestoneEntity;
+import com.gmail.pasquarelli.brandon.destinyapi.database.dao.ContentMilestoneDao;
+import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentMilestoneEntity;
 
 @Database(entities = {
         ContentMilestoneEntity.class },

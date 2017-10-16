@@ -2,6 +2,7 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_small_margin">8dp</dimen>
     <dimen name="row_item_margin">16dp</dimen>
     <dimen name="row_item__margin_from_image">16dp</dimen>
     <dimen name="row_item_image_height_width">40dp</dimen>

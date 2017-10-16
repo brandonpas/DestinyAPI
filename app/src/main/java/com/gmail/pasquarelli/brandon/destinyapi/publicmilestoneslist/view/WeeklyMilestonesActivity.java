@@ -4,7 +4,10 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.arch.persistence.room.Room;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,13 +17,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
-import com.gmail.pasquarelli.brandon.destinyapi.database.databases.AppDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
-import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.GetPublicMilestonesResponse;
+import com.gmail.pasquarelli.brandon.destinyapi.database.databases.ContentDatabase;
+import com.gmail.pasquarelli.brandon.destinyapi.api.response_models.PublicMilestonesResponse;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel.WeeklyMilestonesViewModel;
+
+import java.util.Locale;
 
 public class WeeklyMilestonesActivity extends AppCompatActivity {
 
@@ -61,17 +67,31 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
 
         setupRecyclerView();
         initViewModels();
+        setFonts();
 
-        if (!isDatabaseInitialized()) {
-            SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-            model.relocateDatabase(this, preferences);
-        }
+//        if (!isDatabaseInitialized()) {
+//            SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+//            model.relocateDatabase(this, preferences);
+//        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         fetchThisWeeksMilestones();
+    }
+
+    public void setFonts() {
+        AssetManager am = getApplicationContext().getAssets();
+        // Create Typeface objects
+        Typeface headingTypeFace = Typeface.createFromAsset(am,
+                String.format(Locale.US, "font/%s", "NHaasGroteskDSStd-55Rg.otf"));
+
+        // Retrieve Views
+        TextView milestoneHeading = findViewById(R.id.milestone_label);
+
+        // Set Typeface
+        milestoneHeading.setTypeface(headingTypeFace);
     }
 
     /**
@@ -86,9 +106,9 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
      * Set observers/define actions when the observable emits a change.
      */
     void bind() {
-        model.getMilestonesResponse().observe(this, new Observer<GetPublicMilestonesResponse>() {
+        model.getMilestonesResponse().observe(this, new Observer<PublicMilestonesResponse>() {
             @Override
-            public void onChanged(@Nullable GetPublicMilestonesResponse response) {
+            public void onChanged(@Nullable PublicMilestonesResponse response) {
                 Log.v(TAG,"onChanged Called");
                 milestonesAdapter.notifyDataSetChanged();
                 if (response == null) {
@@ -127,23 +147,17 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
     }
 
     /**
-     * Check if the pre-packaged database has been copied to expected directory
-     * so that Room can access it.
-     * @return True if already initialized, otherwise false.
-     */
-    boolean isDatabaseInitialized() {
-        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-        return preferences.getBoolean(getString(R.string.prepackaged_db_relocated), false);
-    }
-
-    /**
      * Invoke the API to retrieve and convert milestone data to usable list.
      * When complete, notify the adapter that the data-set changed.
      */
     void fetchThisWeeksMilestones() {
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, DatabaseStructure.APP_DB_NAME).build();
+        ContentDatabase db = Room.databaseBuilder(getApplicationContext(),
+                ContentDatabase.class, DatabaseStructure.CONTENT_DB_NAME).build();
         model.retrieveMilestoneDetails(db);
+    }
+
+    public static Intent getIntent(Context context) {
+        return new Intent(context, WeeklyMilestonesActivity.class);
     }
 
 

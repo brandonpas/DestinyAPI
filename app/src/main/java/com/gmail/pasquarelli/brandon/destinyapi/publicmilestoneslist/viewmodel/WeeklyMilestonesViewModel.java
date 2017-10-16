@@ -3,21 +3,21 @@ package com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.viewmodel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
-import android.arch.persistence.room.Room;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.api.ApiUtility;
-import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseManager;
-import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
-import com.gmail.pasquarelli.brandon.destinyapi.database.databases.AppDatabase;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.ContentDatabase;
-import com.gmail.pasquarelli.brandon.destinyapi.database.milestones.entity.AppMilestoneEntity;
-import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.model.GetPublicMilestonesResponse;
+import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentMilestoneEntity;
+import com.gmail.pasquarelli.brandon.destinyapi.model.MilestoneDefinition;
+import com.gmail.pasquarelli.brandon.destinyapi.api.response_models.PublicMilestonesResponse;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
@@ -30,19 +30,19 @@ import io.reactivex.schedulers.Schedulers;
 
 public class WeeklyMilestonesViewModel extends ViewModel {
 
-    private String TAG = "MainActivityVM";
-    private MutableLiveData<GetPublicMilestonesResponse> milestonesResponse;
+    private String TAG = "MilestonesVM";
+    private MutableLiveData<PublicMilestonesResponse> milestonesResponse;
     private MutableLiveData<String> toastMessage;
 
-    private ArrayList<AppMilestoneEntity> milestoneArray = new ArrayList<>();
+    private ArrayList<MilestoneDefinition> milestoneArray = new ArrayList<>();
 
 
     /**
-     * Used to retrieve an observable instance of the {@link GetPublicMilestonesResponse} object.
-     * @return An "observable" instance of {@link GetPublicMilestonesResponse}
+     * Used to retrieve an observable instance of the {@link PublicMilestonesResponse} object.
+     * @return An "observable" instance of {@link PublicMilestonesResponse}
      * using the Android Architecture Component {@link LiveData}
      */
-    public LiveData<GetPublicMilestonesResponse> getMilestonesResponse() {
+    public LiveData<PublicMilestonesResponse> getMilestonesResponse() {
         if (milestonesResponse == null) {
             milestonesResponse = new MutableLiveData<>();
         }
@@ -67,90 +67,8 @@ public class WeeklyMilestonesViewModel extends ViewModel {
      * the row's layout.
      * @return ArrayList of PublicMilestoneObject
      */
-    public ArrayList<AppMilestoneEntity> getMilestonesArray() {
+    public ArrayList<MilestoneDefinition> getMilestonesArray() {
         return milestoneArray;
-    }
-
-    /**
-     * Asynchronously move the database to the Room directory.
-     * This really should only be called the very first time the app is run. Show
-     * a message if the database failed to move.
-     */
-    public void relocateDatabase(final Context context, final SharedPreferences preferences) {
-        moveDatabase(context)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new CompletableObserver() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) { }
-
-                    @Override
-                    public void onComplete() {
-                        Log.v(TAG, "relocateDatabase onComplete");
-
-                        // Update storage so we know we've relocated the database and don't
-                        // repeat on each startup.
-                        SharedPreferences.Editor editor = preferences.edit();
-                        editor.putBoolean(context.getString(R.string.prepackaged_db_relocated), true);
-                        editor.apply();
-
-                        populateAppDatabase(context);
-                        // Since the database didn't exist before, now perform any queries
-                        // that may have been missed prior.
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-                        Log.v(TAG, "relocateDatabase onError");
-                        toastMessage.setValue(context.getString(R.string.relocate_db_fail_toast));
-
-                        // This error needs to be sent to a crash reporting monitor like
-                        // Crashlytics or Firebase.
-                    }
-                });
-    }
-
-    /**
-     * Use this function to move the database from some location to the directory that
-     * the Room library expects.
-     * @param context Application Context
-     */
-    private Completable moveDatabase(final Context context){
-        return Completable.fromAction(new Action() {
-            @Override
-            public void run() throws Exception {
-                boolean success = DatabaseManager.moveDatabaseFromAssets(context);
-                if (!success) {
-                    // Trigger an error so the Completable calls onError
-                    // instead of assuming that it was successful and preventing this process from
-                    // running again.
-                    throw new Exception("Database copy failed");
-                }
-            }
-        });
-    }
-
-    /**
-     * This is called from the WeeklyMilestonesActivity and will occur on a background thread; for this reason,
-     * its safe to use the synchronous calls from the data access objects.
-     */
-    private void populateAppDatabase(final Context context) {
-        Completable.fromAction(new Action() {
-            @Override
-            public void run() throws Exception {
-
-                AppDatabase appDatabase = Room.databaseBuilder(context,
-                        AppDatabase.class, DatabaseStructure.APP_DB_NAME).build();
-
-                ContentDatabase contentDatabase = Room.databaseBuilder(context,
-                        ContentDatabase.class, DatabaseStructure.CONTENT_DB_NAME).build();
-
-                // Convert Milestone data from the manifest to our structure.
-                DatabaseManager.ConvertMilestoneData(appDatabase, contentDatabase);
-            }
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
     }
 
     /**
@@ -158,20 +76,20 @@ public class WeeklyMilestonesViewModel extends ViewModel {
      * <p>
      * This function will occur on a background thread.
      */
-    public void retrieveMilestoneDetails(final AppDatabase appDatabase) {
+    public void retrieveMilestoneDetails(final ContentDatabase appDatabase) {
 
         // Call API to retrieve updated list
         ApiUtility.getService().getPublicMilestones()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<GetPublicMilestonesResponse>() {
+                .subscribe(new Observer<PublicMilestonesResponse>() {
                     @Override
                     public void onSubscribe(@NonNull Disposable d) { }
 
                     @Override
-                    public void onNext(@NonNull GetPublicMilestonesResponse getPublicMilestonesResponse) {
+                    public void onNext(@NonNull PublicMilestonesResponse publicMilestonesResponse) {
                         Log.v(TAG,"retrieveMilestoneDetails onNext");
-                        updateList(appDatabase, getPublicMilestonesResponse);
+                        updateList(appDatabase, publicMilestonesResponse);
                     }
 
                     @Override
@@ -197,15 +115,25 @@ public class WeeklyMilestonesViewModel extends ViewModel {
      * @param appDatabase Our app database.
      * @param apiResponse The response from the API endpoint.
      */
-    private void updateList(final AppDatabase appDatabase, final GetPublicMilestonesResponse apiResponse){
+    private void updateList(final ContentDatabase appDatabase, final PublicMilestonesResponse apiResponse){
         Completable.fromAction(new Action() {
             @Override
             public void run() throws Exception {
                 milestoneArray.clear();
                 // If we received results
                 if (apiResponse != null && apiResponse.getErrorCode().equals("1")){
-                    milestoneArray.addAll(appDatabase.appMilestoneDao()
-                            .getMilestoneFromList(apiResponse.getMilestonesHash()));
+
+                    List<ContentMilestoneEntity> dbMilestones = appDatabase.contentMilestoneDao()
+                            .getMilestoneFromList(apiResponse.getMilestonesHash());
+
+                    Gson gson = new Gson();
+                    for (ContentMilestoneEntity entity : dbMilestones) {
+                        Reader reader = new InputStreamReader(new ByteArrayInputStream(entity.json));
+                        JsonReader jsonReader = new JsonReader(reader);
+
+                        MilestoneDefinition milestone = gson.fromJson(jsonReader, MilestoneDefinition.class);
+                        milestoneArray.add(milestone);
+                    }
                 }
             }
         }).subscribeOn(Schedulers.io())
