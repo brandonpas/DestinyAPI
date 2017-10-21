@@ -72,6 +72,17 @@ public class WeeklyMilestonesViewModel extends ViewModel {
     }
 
     /**
+     * Return the MilestoneDefinition object at the position specified
+     * @param position Integer position in the list
+     * @return MilestoneDefinition object if within the list's bounds, otherwise null
+     */
+    public MilestoneDefinition getMilestoneAt(int position) {
+        if (position >= 0 && position < milestoneArray.size())
+            return milestoneArray.get(position);
+        return null;
+    }
+
+    /**
      * Call the API to retrieve the current milestones for the week.
      * <p>
      * This function will occur on a background thread.
@@ -120,6 +131,7 @@ public class WeeklyMilestonesViewModel extends ViewModel {
             @Override
             public void run() throws Exception {
                 milestoneArray.clear();
+                Log.v(TAG,"response count: " + apiResponse.getMilestoneArray().size());
                 // If we received results
                 if (apiResponse != null && apiResponse.getErrorCode().equals("1")){
 
@@ -135,6 +147,7 @@ public class WeeklyMilestonesViewModel extends ViewModel {
                         milestoneArray.add(milestone);
                     }
                 }
+                Log.v(TAG,"milestoneArray count: " + milestoneArray.size());
             }
         }).subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())

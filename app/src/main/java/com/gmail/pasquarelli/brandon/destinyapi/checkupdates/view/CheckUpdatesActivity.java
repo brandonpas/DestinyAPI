@@ -12,8 +12,8 @@ import android.util.Log;
 import android.widget.ProgressBar;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.authentication.view.AuthenticateActivity;
 import com.gmail.pasquarelli.brandon.destinyapi.checkupdates.viewmodel.CheckUpdatesViewModel;
-import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.view.WeeklyMilestonesActivity;
 
 import java.util.Locale;
 
@@ -90,10 +90,9 @@ public class CheckUpdatesActivity extends AppCompatActivity {
      */
     void checkDatabaseVersion() {
         SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
-        String currentVersion = prefs.getString(getString(R.string.pref_current_db_version),
-                getString(R.string.db_version));
-        boolean relocated = prefs.getBoolean(getString(R.string.pref_packaged_db_relocated),
-                false);
+        String currentVersion = prefs.getString(getString(R.string.pref_current_db_version), getString(R.string.db_version));
+        boolean relocated = prefs.getBoolean(getString(R.string.pref_packaged_db_relocated), false);
+
         String languageCode = Locale.getDefault().getLanguage();
         Log.v(TAG, "Language code: " + languageCode);
         Log.v(TAG, "Activity checkDBVersion, relocated: " + relocated);
@@ -103,10 +102,10 @@ public class CheckUpdatesActivity extends AppCompatActivity {
     }
 
     /**
-     * Get the intent for the home screen of the app and finish this activity
+     * Get the intent for the next screen after verifying the database and finish this activity
      */
     void launchApp() {
-        Intent intent = WeeklyMilestonesActivity.getIntent(this);
+        Intent intent = AuthenticateActivity.getIntent(this);
         startActivity(intent);
         finish();
     }
