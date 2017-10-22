@@ -7,12 +7,22 @@ import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-
 public class AuthWebViewClient extends WebViewClient {
     private String TAG = "AuthWebView";
 
     MutableLiveData<String> authCode;
 
+    private final String BUNGIE_AUTHORITY = "www.bungie.net";
+    private final String PSN_AUTHORITY = "auth.api.sonyentertainmentnetwork.com";
+    private final String XBOX_AUTHORITY = "login.live.com";
+    private final String BATTLENET_AUTHORITY = "us.battle.net";
+    private final String REDIRECT_AUTHORITY = "localhost:8080";
+
+    /**
+     * An object for the Activity to observe and react when we receive an
+     * authorization code
+     * @return {@link MutableLiveData} object of the authorization code
+     */
     public MutableLiveData<String> getBungieAuthCode() {
         if (authCode == null)
             authCode = new MutableLiveData<>();
@@ -22,28 +32,34 @@ public class AuthWebViewClient extends WebViewClient {
     @Override
     public void onPageStarted(WebView view, String url, Bitmap favicon) {
         Log.v(TAG,url);
-        if (url != null && url.contains("https://localhost:8080/?code=")) {
+        if (url != null && url.contains(REDIRECT_AUTHORITY)) {
             // prevent this page from being displayed since it isn't a real page.
             view.stopLoading();
         }
     }
 
+    /**
+     * Check if this app's WebView should handle a redirect URL.
+     *
+     * To mitigate security concerns, this in app browser should only allow limited access to the
+     * PSN, Xbox, Battle.net, or Bungie authentication pages. However, these authentication pages
+     * could also use other authentication services (Facebook, Google, etc), so we can't restrict
+     * the WebView to only load pages for the four authorities above.
+     *
+     * @param view
+     * @param url
+     * @return
+     */
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        if (url == null || (url.length() == 0))
+            return false;
 
-        // If Bungie/PSN/Xbox, then false. Else true
-        // Bungie : www.bungie.net
-        // PSN : auth.api.sonyentertainmentnetwork.com
-        // Xbox :
-        // Battle.net?
         Log.v(TAG,"Url: " + url);
-        if (url != null && url.contains("https://localhost:8080/?code=")) {
-            //we've been granted access
-            Uri urlReceived = Uri.parse(url);
-            String code = urlReceived.getQueryParameter("code");
-            Log.v(TAG,"Token from bungie override: " + code);
-            authCode.setValue(code);
-        }
+        Uri uri = Uri.parse(url);
+        if (uri.getAuthority().equals(REDIRECT_AUTHORITY))
+            authCode.setValue(uri.getQueryParameter("code"));
         return false;
     }
+
 }
