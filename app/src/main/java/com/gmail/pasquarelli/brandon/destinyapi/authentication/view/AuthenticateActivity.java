@@ -94,7 +94,7 @@ public class AuthenticateActivity extends AppCompatActivity {
                 // we've received the token
                 Log.v(TAG, "auth code: " +  authCode);
                 if (authCode.length() > 0) {
-                    ApiUtility.getDebugService()
+                    ApiUtility.getService()
                             .getAccessTokenConfidential(new AuthRequestModel(authCode).getBody())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
