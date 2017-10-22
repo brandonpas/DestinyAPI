@@ -142,7 +142,7 @@ public class AuthenticateActivity extends AppCompatActivity {
         if (webView != null)
             webView.stopLoading();
         showToast("Success");
-        storeToken(response.refreshToken, response.refreshTokenExpires);
+        storeToken(response);
         launchNextScreen();
     }
 
@@ -160,17 +160,22 @@ public class AuthenticateActivity extends AppCompatActivity {
      * Store the auth token in SharedPreferences for now. Only our app can access this file, however
      * on rooted devices the user could read this file. We'll need to update this logic to encrypt the
      * token.
-     * @param token Token to store
-     * @param hoursValid Integer representing the number of hours the token is valid
+     * @param response Token containing information to store
      */
-    private void storeToken(String token, int hoursValid) {
+    private void storeToken(TokenResponse response) {
+
+        if (response == null || response.getErrorCode() == null ||
+                !response.getErrorCode().equals("1"))
+            return;
+
         Calendar endDate = Calendar.getInstance();
-        endDate.add(Calendar.HOUR, hoursValid);
+        endDate.add(Calendar.HOUR, response.refreshTokenExpires);
 
         SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(getString(R.string.refresh_token), token);
+        editor.putString(getString(R.string.refresh_token), response.refreshToken);
         editor.putLong(getString(R.string.refresh_token_expiration), endDate.getTimeInMillis());
+        editor.putString(getString(R.string.bungie_membership_id), response.bungieMembershipId);
         editor.apply();
     }
 

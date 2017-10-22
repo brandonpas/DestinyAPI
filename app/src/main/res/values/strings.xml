@@ -14,6 +14,7 @@
     <string name="pref_current_db_version">current_db_version</string>
     <string name="refresh_token">user_refresh</string>
     <string name="refresh_token_expiration">user_refresh_expiration</string>
+    <string name="bungie_membership_id">membership_id</string>
 
     <!-- MainActivity screen -->
     <string name="relocate_db_fail_toast">Issue transferring data</string>
