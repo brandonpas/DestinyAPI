@@ -20,7 +20,7 @@ android {
     buildToolsVersion "26.0.1"
     defaultConfig {
         applicationId "com.gmail.pasquarelli.brandon.destinyapi"
-        minSdkVersion 15
+        minSdkVersion 18
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -28,11 +28,14 @@ android {
         vectorDrawables.useSupportLibrary = true
         manifestPlaceholders.destinyApiKey = project.hasProperty('destiny_api_key') ? destiny_api_key : System.getenv('destiny_api_key')
         manifestPlaceholders.crashlyticsKey = project.hasProperty('crashlitics_api_key') ? crashlitics_api_key : System.getenv('crashlitics_api_key')
-
+        manifestPlaceholders.oauthClientId = project.hasProperty('oauth_client_id') ? oauth_client_id : System.getenv('oauth_client_id')
+        manifestPlaceholders.oauthAuthHeader = project.hasProperty('oauth_auth_header') ? oauth_auth_header : System.getenv('oauth_auth_header')
     }
     buildTypes {
         applicationVariants.all { variant ->
             variant.buildConfigField "String", "destiny2ApiKey", destiny_api_key
+            variant.buildConfigField "String", "destinyOauthClient", oauth_client_id
+            variant.buildConfigField "String", "oauthAuthHeader", oauth_auth_header
         }
 
         release {
@@ -65,7 +68,6 @@ dependencies {
     annotationProcessor "com.github.bumptech.glide:compiler:$libVersions.glideAnnotation"
 
     // Room
-    
 
     // Third party libraries
     compile "com.jakewharton:butterknife:$libVersions.butterknife"
@@ -74,11 +76,15 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:$libVersions.retrofit"
     compile "com.squareup.retrofit2:adapter-rxjava2:$libVersions.rxJavaAdapter"
     compile "com.squareup.retrofit2:converter-gson:$libVersions.converter_gson"
+    compile "com.squareup.okhttp3:logging-interceptor:$libVersions.okHttpLogInt"
 
     compile "io.reactivex.rxjava2:rxjava:$libVersions.rxJava"
     compile "io.reactivex.rxjava2:rxandroid:$libVersions.rxAndroid"
 
     // Testing
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
+        transitive = true;
+    }
     compile 'android.arch.lifecycle:runtime:1.0.0'
     compile 'android.arch.lifecycle:extensions:1.0.0-beta1'
     compile 'android.arch.persistence.room:runtime:1.0.0-beta1'
@@ -87,7 +93,4 @@ dependencies {
     testCompile 'junit:junit:4.12'
     annotationProcessor 'android.arch.lifecycle:compiler:1.0.0-beta1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.0.0-beta1'
-    compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
-        transitive = true;
-    }
 }
