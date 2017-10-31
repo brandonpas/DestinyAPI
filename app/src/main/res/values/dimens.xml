@@ -14,7 +14,7 @@
     <dimen name="public_milestones_row_item_height">32dp</dimen>
     <dimen name="milestone_name_text_size">18sp</dimen>
     <dimen name="milestone_description_text_size">12sp</dimen>
-
+    <dimen name="fab_margin">16dp</dimen>
 
 
 </resources>

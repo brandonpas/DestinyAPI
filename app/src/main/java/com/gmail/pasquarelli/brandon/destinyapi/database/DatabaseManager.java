@@ -29,6 +29,18 @@ import io.reactivex.functions.Consumer;
 public class DatabaseManager {
     private static String TAG = "DatabaseManager";
 
+    public static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+        }
+    };
+
+    public static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+        }
+    };
+
     /**
      *
      * @param context Reference to the activity's context

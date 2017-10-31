@@ -19,4 +19,33 @@
 
     <!-- Milestones screen -->
     <string name="milestones_label">MILESTONES</string>
+    <string name="title_activity_weapon_stats">WeaponStatsActivity</string>
+
+    <string-array name="weapon_list_values">
+        <item>Auto Rifle</item>
+        <item>Shotgun</item>
+        <item>Submachine Gun</item>
+        <item>Hand Cannon</item>
+        <item>Rocket Launcher</item>
+        <item>Fusion Rifle</item>
+        <item>Sniper Rifle</item>
+        <item>Pulse Rifle</item>
+        <item>Scout Rifle</item>
+        <item>Sidearm</item>
+        <item>Sword</item>
+    </string-array>
+    <integer-array name="weapon_list_ids">
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>17</item>
+        <item>18</item>
+    </integer-array>
+
 </resources>

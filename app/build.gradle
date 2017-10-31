@@ -17,7 +17,7 @@ repositories {
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion "26.0.2"
     defaultConfig {
         applicationId "com.gmail.pasquarelli.brandon.destinyapi"
         minSdkVersion 15
@@ -42,8 +42,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -65,7 +65,6 @@ dependencies {
     annotationProcessor "com.github.bumptech.glide:compiler:$libVersions.glideAnnotation"
 
     // Room
-    
 
     // Third party libraries
     compile "com.jakewharton:butterknife:$libVersions.butterknife"
@@ -79,6 +78,9 @@ dependencies {
     compile "io.reactivex.rxjava2:rxandroid:$libVersions.rxAndroid"
 
     // Testing
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
+        transitive = true;
+    }
     compile 'android.arch.lifecycle:runtime:1.0.0'
     compile 'android.arch.lifecycle:extensions:1.0.0-beta1'
     compile 'android.arch.persistence.room:runtime:1.0.0-beta1'
@@ -87,7 +89,4 @@ dependencies {
     testCompile 'junit:junit:4.12'
     annotationProcessor 'android.arch.lifecycle:compiler:1.0.0-beta1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.0.0-beta1'
-    compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
-        transitive = true;
-    }
 }

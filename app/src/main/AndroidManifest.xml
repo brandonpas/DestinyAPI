@@ -5,28 +5,34 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".MainApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".publicmilestoneslist.view.WeeklyMilestonesActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"></activity>
+        <activity android:name=".checkupdates.view.CheckUpdatesActivity">
 
         </activity>
-        <activity android:name=".checkupdates.view.CheckUpdatesActivity">
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="${crashlyticsKey}" />
+
+        <activity
+            android:name=".weaponstats.view.WeaponStatsActivity"
+            android:label="@string/title_activity_weapon_stats"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="${crashlyticsKey}" />
     </application>
 
 </manifest>
