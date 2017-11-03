@@ -57,6 +57,10 @@ public class WeaponStatsViewModel extends ViewModel {
         return containersInitialized;
     }
 
+    /**
+     * Obtain the current number of containers in the list.
+     * @return Integer representing the number of weapon stat containers.
+     */
     public int getStatsListCount() {
         if (statsList.getValue() == null)
             return 0;
@@ -64,6 +68,11 @@ public class WeaponStatsViewModel extends ViewModel {
             return statsList.getValue().size();
     }
 
+    /**
+     * Obtain the WeaponStatContainer at the designated position.
+     * @param position Position in list
+     * @return The WeaponStatContainer
+     */
     public WeaponStatContainer getWeaponStatAt(int position) {
         if (statsList.getValue() == null)
             return null;
@@ -71,6 +80,9 @@ public class WeaponStatsViewModel extends ViewModel {
             return statsList.getValue().get(position);
     }
 
+    /**
+     * Clear the weapon list in each WeaponStatContainer
+     */
     void clearAllContainers() {
         if (statContainerByHash == null)
             return;
@@ -81,6 +93,11 @@ public class WeaponStatsViewModel extends ViewModel {
         }
     }
 
+    /**
+     * Asynchronously query all the stats in the Content database provided by Bungie.
+     * Then initialize the WeaponStatContainer hashmap.
+     * @param db A reference to the Room database instance.
+     */
     public void queryStats(ContentDatabase db) {
         db.contentStatDao()
                 .getAllStats()
@@ -105,12 +122,23 @@ public class WeaponStatsViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Initialize the list of stats that should not have a WeaponStatContainer.
+     * The hashcode for the StatDefinition can change with each database version,
+     * so build this list according to the display name.
+     */
     private void initHiddenStats() {
         hiddenStats.put("Inventory Size", true);
         hiddenStats.put("Recoil Direction", true);
         hiddenStats.put("Attack", true);
     }
 
+    /**
+     * Asyncrhonously build the HashMap using the stat's hashcode as the key and the
+     * WeaponStatContainer as the value. This allows us to dynamically create WeaponStatContainers
+     * and reference the container to add to/remove from/clear the weapon list within the container.
+     * @param statsList The list of records representing each stat returned by the database.
+     */
     private void initStatsHashMap(List<ContentStatEntity> statsList) {
         Completable.fromAction(() -> {
             if (hiddenStats == null) {
@@ -138,7 +166,8 @@ public class WeaponStatsViewModel extends ViewModel {
                 statContainerByHash.put(statDefinition.hash,
                         new WeaponStatContainer(statDefinition.displayProperties.name, statDefinition.hash));
             }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new CompletableObserver() {
                     @Override
                     public void onSubscribe(Disposable d) { }
@@ -158,6 +187,12 @@ public class WeaponStatsViewModel extends ViewModel {
 
     }
 
+    /**
+     * Query the Content database for all weapons of the class type provided and add the weapon
+     * to each WeaponStatContainer.
+     * @param db A reference to the Room database.
+     * @param weaponClass Integer representing the weapon class.
+     */
     public void getStats(ContentDatabase db, int weaponClass) {
         clearAllContainers();
 
@@ -197,18 +232,14 @@ public class WeaponStatsViewModel extends ViewModel {
         statsList.setValue(gridList);
     }
 
+    /**
+     * Add the weapon provided to each WeaponStatContainer.
+     * @param item InventoryItemDefinition representing the weapon
+     */
     void addItemToAllContainers(InventoryItemDefinition item) {
-//        for (Map.Entry entry : item.itemStats.stats.entrySet()) {
-//            WeaponStatContainer container = statContainerByHash.get(entry.getKey());
-//            if (container == null)
-//                continue;
-//            container.insertToList(item);
-//        }
-        if (item.displayProperties == null ||
-                item.displayProperties.name == null)
+        if (item.displayProperties == null || item.displayProperties.name == null)
             return;
         for (Map.Entry entry : statContainerByHash.entrySet()) {
-
             long statHash = (Long) entry.getKey();
             if (statHash == 1345609583L && item.displayProperties.name.equals("Merciless"))
                 Log.v(TAG, "debug");
@@ -221,25 +252,4 @@ public class WeaponStatsViewModel extends ViewModel {
             container.insertToList(item);
         }
     }
-
-    public SingleObserver<List<ContentInventoryItemEntity>> getItemObserver() {
-        return new SingleObserver<List<ContentInventoryItemEntity>>() {
-            @Override
-            public void onSubscribe(Disposable d) {
-
-            }
-
-            @Override
-            public void onSuccess(List<ContentInventoryItemEntity> contentInventoryItemEntity) {
-                Log.v(TAG,"getStats onSuccess");
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.v(TAG, "getStats onError");
-                e.printStackTrace();
-            }
-        };
-    }
-
 }
