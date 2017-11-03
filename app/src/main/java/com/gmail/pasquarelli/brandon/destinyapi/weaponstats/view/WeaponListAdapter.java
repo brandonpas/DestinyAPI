@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 
 public class WeaponListAdapter extends BaseAdapter {
 
+    private String TAG = "WeaponListAdp";
     WeaponStatsViewModel statsViewModel;
 
     public WeaponListAdapter(AppCompatActivity activity) {
@@ -49,22 +51,28 @@ public class WeaponListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View gridItemView = LayoutInflater.from(parent.getContext()).inflate(
+        View gridItemView;
+
+        if (convertView == null)
+            gridItemView = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.weapon_stat_container, parent, false);
+        else
+            gridItemView = convertView;
 
         WeaponStatContainer statContainer = statsViewModel.getWeaponStatAt(position);
         if (statContainer == null)
-            return gridItemView;
+            return LayoutInflater.from(parent.getContext()).inflate(
+                    R.layout.weapon_stat_container, parent, false);
 
         TextView statLabel = gridItemView.findViewById(R.id.stat_label);
         ListView weaponList = gridItemView.findViewById(R.id.weapon_list_for_stat);
-//        ViewGroup.LayoutParams params = weaponList.getLayoutParams();
-//        params.height = (statContainer.getWeaponListSize() * 72);
+        ViewGroup.LayoutParams params = weaponList.getLayoutParams();
+        params.height = (statContainer.getWeaponListSize() * 72);
 //        weaponList.setLayoutParams(params);
         weaponList.setAdapter(new WeaponItemAdapter(statContainer.getWeapons()));
 
         statLabel.setText(statContainer.getStatName());
-
+        Log.v(TAG, "Loading position: " + position);
         return gridItemView;
     }
 

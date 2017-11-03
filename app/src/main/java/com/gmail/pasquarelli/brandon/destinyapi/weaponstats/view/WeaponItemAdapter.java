@@ -1,5 +1,6 @@
 package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.view;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 
 public class WeaponItemAdapter extends BaseAdapter {
 
+    private String TAG = "WeaponItemAdp";
     private ArrayList<WeaponStat> weaponStats;
 
     public WeaponItemAdapter(ArrayList<WeaponStat> list) {
@@ -37,8 +39,13 @@ public class WeaponItemAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View weaponItemView = LayoutInflater.from(parent.getContext()).inflate(
+        View weaponItemView;
+
+        if (convertView == null)
+            weaponItemView = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.weapon_item_row, parent, false);
+        else
+            weaponItemView = convertView;
 
         WeaponStat stat = weaponStats.get(position);
         if (stat == null)
@@ -49,6 +56,7 @@ public class WeaponItemAdapter extends BaseAdapter {
 
         weaponName.setText(stat.getWeaponName());
         statValue.setText(String.valueOf(stat.getStatValue()));
+        Log.v(TAG, "Loading position: " + position);
         return weaponItemView;
     }
 }

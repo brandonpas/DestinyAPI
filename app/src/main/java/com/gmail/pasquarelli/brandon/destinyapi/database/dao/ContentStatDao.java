@@ -14,8 +14,8 @@ import io.reactivex.Single;
 public interface ContentStatDao {
 
     @Query("SELECT * FROM " + DatabaseStructure.CONTENT_STAT_TABLE_NAME +
-    " WHERE " + DatabaseStructure.COLUMN_JSON + " like '%\"name\":\"' || :statName || '\",' ")
-    List<ContentStatEntity> getStatDefinitionByHash(String statName);
+    " WHERE json like :likeQuery")
+    Single<List<ContentStatEntity>> getStatsByType(String likeQuery);
 
     @Query("SELECT * FROM " + DatabaseStructure.CONTENT_STAT_TABLE_NAME)
     Single<List<ContentStatEntity>> getAllStats();

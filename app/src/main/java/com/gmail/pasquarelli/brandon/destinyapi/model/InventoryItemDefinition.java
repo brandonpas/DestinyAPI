@@ -56,7 +56,7 @@ public class InventoryItemDefinition {
     public int itemSubType;
 
     @SerializedName("stats")
-    public InventoryItemStatsDefinition itemStats;
+    public ItemStatBlockDefinition itemStats;
 
     @SerializedName("computedStats")
     public HashMap<String, ItemStat> itemComputedStats;

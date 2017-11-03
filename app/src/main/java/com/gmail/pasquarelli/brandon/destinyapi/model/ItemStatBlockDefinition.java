@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.HashMap;
 
-public class InventoryItemStatsDefinition {
+public class ItemStatBlockDefinition {
 
     @SerializedName("statsGroupHash")
     public int statsGroupHash;

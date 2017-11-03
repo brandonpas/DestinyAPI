@@ -12,6 +12,7 @@ import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentInventory
 import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentStatEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
+import com.gmail.pasquarelli.brandon.destinyapi.model.ItemStat;
 import com.gmail.pasquarelli.brandon.destinyapi.model.StatDefinition;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStatContainer;
 import com.google.gson.Gson;
@@ -39,8 +40,8 @@ public class WeaponStatsViewModel extends ViewModel {
     private String TAG = "WeaponStatVM";
     private MutableLiveData<ArrayList<WeaponStatContainer>> statsList;
     private MutableLiveData<Boolean> containersInitialized;
-
     private HashMap<Long,WeaponStatContainer> statContainerByHash;
+    private HashMap<String,Boolean> hiddenStats;
 
     public MutableLiveData<ArrayList<WeaponStatContainer>> getWeaponStats() {
         if (statsList == null) {
@@ -71,6 +72,9 @@ public class WeaponStatsViewModel extends ViewModel {
     }
 
     void clearAllContainers() {
+        if (statContainerByHash == null)
+            return;
+
         for (Map.Entry entry : statContainerByHash.entrySet()) {
             WeaponStatContainer container = (WeaponStatContainer) entry.getValue();
             container.clearList();
@@ -78,7 +82,8 @@ public class WeaponStatsViewModel extends ViewModel {
     }
 
     public void queryStats(ContentDatabase db) {
-        db.contentStatDao().getAllStats()
+        db.contentStatDao()
+                .getAllStats()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<ContentStatEntity>>() {
@@ -88,6 +93,7 @@ public class WeaponStatsViewModel extends ViewModel {
                     @Override
                     public void onSuccess(List<ContentStatEntity> contentStatEntity) {
                         Log.v(TAG,"initStatHashMap onSuccess");
+                        Log.v(TAG,"contentStatEntity: " + contentStatEntity.size());
                         initStatsHashMap(contentStatEntity);
                     }
 
@@ -99,8 +105,19 @@ public class WeaponStatsViewModel extends ViewModel {
                 });
     }
 
+    private void initHiddenStats() {
+        hiddenStats.put("Inventory Size", true);
+        hiddenStats.put("Recoil Direction", true);
+        hiddenStats.put("Attack", true);
+    }
+
     private void initStatsHashMap(List<ContentStatEntity> statsList) {
         Completable.fromAction(() -> {
+            if (hiddenStats == null) {
+                hiddenStats = new HashMap<>();
+                initHiddenStats();
+            }
+
             if (statContainerByHash == null)
                 statContainerByHash = new HashMap<>();
             statContainerByHash.clear();
@@ -113,7 +130,9 @@ public class WeaponStatsViewModel extends ViewModel {
 
                 if (statDefinition == null ||
                         statDefinition.displayProperties == null ||
-                        statDefinition.displayProperties.name == null)
+                        statDefinition.displayProperties.name == null ||
+                        hiddenStats.containsKey(statDefinition.displayProperties.name) ||
+                        statDefinition.aggregationType != StatDefinition.AGGREGATE_TYPE_ITEM)
                     continue;
 
                 statContainerByHash.put(statDefinition.hash,
@@ -142,7 +161,7 @@ public class WeaponStatsViewModel extends ViewModel {
     public void getStats(ContentDatabase db, int weaponClass) {
         clearAllContainers();
 
-        Cursor mCursor = db.query(QueryHelper.getItemsByTypeAndSubType(InventoryItemDefinition.ITEM_TYPE_WEAPON,
+        Cursor mCursor = db.query(QueryHelper.queryItemsByTypeAndSubType(InventoryItemDefinition.ITEM_TYPE_WEAPON,
                 weaponClass), new String[0]);
         ArrayList<WeaponStatContainer> gridList = new ArrayList<>();
 
@@ -158,16 +177,23 @@ public class WeaponStatsViewModel extends ViewModel {
                 continue;
             addItemToAllContainers(item);
         }
-
+        long totalTimeSorting = 0L;
         for (Map.Entry entry : statContainerByHash.entrySet()) {
             WeaponStatContainer container = (WeaponStatContainer) entry.getValue();
             if (container.getWeaponListSize() == 0)
                 continue;
 
-            container.sortList();
+            if (!container.hasNonZeroValueItem())
+                continue;
+
+            long startTime = System.currentTimeMillis();
+//            container.mergeSort();
+            container.bubbleSortList();
+            long endTime = System.currentTimeMillis();
+            totalTimeSorting = totalTimeSorting + (endTime - startTime);
             gridList.add(container);
         }
-
+        Log.v(TAG, "total time sorting: " + totalTimeSorting);
         statsList.setValue(gridList);
     }
 
@@ -176,7 +202,7 @@ public class WeaponStatsViewModel extends ViewModel {
 //            WeaponStatContainer container = statContainerByHash.get(entry.getKey());
 //            if (container == null)
 //                continue;
-//            container.insertDescendingOrder(item);
+//            container.insertToList(item);
 //        }
         if (item.displayProperties == null ||
                 item.displayProperties.name == null)
@@ -188,9 +214,11 @@ public class WeaponStatsViewModel extends ViewModel {
                 Log.v(TAG, "debug");
 
             WeaponStatContainer container = statContainerByHash.get(entry.getKey());
-//            if (!item.itemStats.stats.containsKey(entry.getKey()))
-//                continue;
-            container.insertDescendingOrder(item);
+            if (!item.itemStats.stats.containsKey(entry.getKey())) {
+                long statHashCode = (Long) entry.getKey();
+                item.itemStats.stats.put(statHashCode, new ItemStat(statHashCode));
+            }
+            container.insertToList(item);
         }
     }
 

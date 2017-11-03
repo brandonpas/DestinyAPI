@@ -4,6 +4,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class ItemStat {
 
+    public ItemStat(long hash) {
+        statHash = hash;
+        statValue = 0;
+        minValue = 0;
+        maxValue = 0;
+    }
+
     @SerializedName("statHash")
     public long statHash;
 
