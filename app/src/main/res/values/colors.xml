@@ -5,12 +5,22 @@
     <color name="colorAccent">#FF4081</color>
     <color name="label_text">#eaeaea</color>
     <color name="label_separator">#ababab</color>
+    <color name="white_text">#FFF</color>
 
-    <color name="background_gray">#A6A19E</color>
+    <color name="background_gray">#cecccb</color>
+    <color name="background_dark_gray">#212121</color>
+    <color name="background_light_gray">#eaeaea</color>
 
     <color name="general_background">#535353</color>
     <color name="milestone_background">#535353</color>
     <color name="milestone_name">#eaeaea</color>
     <color name="milestone_description">#ababab</color>
+
+    <!-- Weapon Stat Screen -->
+    <color name="weapon_stat_container_dark">#212121</color>
+
+    <!-- Inventory Item Colors -->
+    <color name="legendary_item_purple">#623C6F</color>
+    <color name="exotic_item_yellow">#CFBB42</color>
 
 </resources>

@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/weapon_stat_item_holder"
     android:layout_width="match_parent"
-    android:layout_height="500dp"
-    android:background="@color/general_background">
+    android:layout_height="wrap_content"
+    android:background="@drawable/weapon_stat_container_bg" >
 
     <TextView
         android:id="@+id/stat_label"
@@ -12,10 +12,11 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:textColor="@color/label_text"
-        android:textSize="18sp"/>
+        android:textSize="@dimen/sub_heading_text"/>
 
     <View
         android:id="@+id/stat_label_separator"
@@ -35,8 +36,8 @@
         app:layout_constraintTop_toBottomOf="@id/stat_label_separator"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:paddingTop="8dp"/>
-    <!--app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--height 0dp-->
+        android:paddingTop="8dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"/>
 
 </android.support.constraint.ConstraintLayout>

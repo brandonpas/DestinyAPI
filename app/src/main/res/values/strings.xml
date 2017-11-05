@@ -23,29 +23,29 @@
 
     <string-array name="weapon_list_values">
         <item>Auto Rifle</item>
-        <item>Shotgun</item>
-        <item>Submachine Gun</item>
-        <item>Hand Cannon</item>
-        <item>Rocket Launcher</item>
         <item>Fusion Rifle</item>
-        <item>Sniper Rifle</item>
+        <item>Hand Cannon</item>
         <item>Pulse Rifle</item>
+        <item>Rocket Launcher</item>
         <item>Scout Rifle</item>
+        <item>Shotgun</item>
         <item>Sidearm</item>
+        <item>Sniper Rifle</item>
         <item>Sword</item>
+        <item>Other</item>
     </string-array>
     <integer-array name="weapon_list_ids">
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-        <item>9</item>
-        <item>10</item>
-        <item>11</item>
-        <item>12</item>
-        <item>13</item>
-        <item>14</item>
-        <item>17</item>
-        <item>18</item>
+        <item>6</item>  <!--Auto Rifle-->
+        <item>11</item> <!--Fusion Rifle-->
+        <item>9</item>  <!--Hand Cannon-->
+        <item>13</item> <!--Pulse Rifle-->
+        <item>10</item> <!--Rocket Launcher-->
+        <item>14</item> <!--Scout Rifle-->
+        <item>7</item>  <!--Shotgun-->
+        <item>17</item> <!--Sidearm-->
+        <item>12</item> <!--Sniper Rifle-->
+        <item>18</item> <!--Sword-->
+        <item>0</item>  <!--Other-->
     </integer-array>
 
 </resources>

@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.checkupdates.viewmodel.CheckUpdatesViewModel;
 import com.gmail.pasquarelli.brandon.destinyapi.publicmilestoneslist.view.WeeklyMilestonesActivity;
+import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.view.WeaponStatsActivity;
 
 import java.util.Locale;
 
@@ -106,7 +107,8 @@ public class CheckUpdatesActivity extends AppCompatActivity {
      * Get the intent for the home screen of the app and finish this activity
      */
     void launchApp() {
-        Intent intent = WeeklyMilestonesActivity.getIntent(this);
+//        Intent intent = WeeklyMilestonesActivity.getIntent(this);
+        Intent intent = WeaponStatsActivity.getActivityIntent(this);
         startActivity(intent);
         finish();
     }

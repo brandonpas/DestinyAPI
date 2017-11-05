@@ -14,7 +14,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:textColor="@color/label_text"/>
+        android:textColor="@color/white_text"
+        android:textSize="@dimen/normal_text"/>
 
     <TextView
         android:id="@+id/weapon_stat_value"
@@ -22,6 +23,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:textColor="@color/label_text"/>
+        android:textColor="@color/white_text"
+        android:textSize="@dimen/normal_text"/>
 
 </android.support.constraint.ConstraintLayout>

@@ -2,6 +2,8 @@ package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.view;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -27,8 +29,6 @@ public class WeaponStatsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weapon_stats);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         initViews();
         initViewModel();
@@ -49,9 +49,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) { }
         });
     }
 
@@ -76,5 +74,9 @@ public class WeaponStatsActivity extends AppCompatActivity {
     private void hideProgress() {
         weaponGrid.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    public static Intent getActivityIntent(Context context) {
+        return new Intent(context, WeaponStatsActivity.class);
     }
 }

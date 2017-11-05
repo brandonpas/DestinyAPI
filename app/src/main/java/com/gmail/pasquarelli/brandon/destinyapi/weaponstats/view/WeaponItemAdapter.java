@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStat;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class WeaponItemAdapter extends BaseAdapter {
 
     private String TAG = "WeaponItemAdp";
     private ArrayList<WeaponStat> weaponStats;
+    private int legendaryColor;
+    private int exoticColor;
 
     public WeaponItemAdapter(ArrayList<WeaponStat> list) {
         weaponStats = list;
@@ -53,6 +56,18 @@ public class WeaponItemAdapter extends BaseAdapter {
 
         TextView weaponName = weaponItemView.findViewById(R.id.weapon_name);
         TextView statValue = weaponItemView.findViewById(R.id.weapon_stat_value);
+
+        if (stat.getTierType() == InventoryProperties.TIER_TYPE_SUPERIOR) {
+            if (legendaryColor == 0)
+                legendaryColor = weaponItemView.getResources().getColor(R.color.legendary_item_purple);
+            weaponItemView.setBackgroundColor(legendaryColor);
+        }
+
+        if (stat.getTierType() == InventoryProperties.TIER_TYPE_EXOTIC) {
+            if (exoticColor == 0)
+                exoticColor = weaponItemView.getResources().getColor(R.color.exotic_item_yellow);
+            weaponItemView.setBackgroundColor(exoticColor);
+        }
 
         weaponName.setText(stat.getWeaponName());
         statValue.setText(String.valueOf(stat.getStatValue()));

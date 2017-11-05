@@ -6,12 +6,14 @@ public class WeaponStat {
 
     private String weaponName;
     private int statValue;
+    private int tierType;
 
     private WeaponStat() { }
 
-    public WeaponStat(@NonNull String itemName, int value) {
+    public WeaponStat(@NonNull String itemName, int value, int tier) {
         weaponName = itemName;
         statValue = value;
+        tierType = tier;
     }
 
     public String getWeaponName() {
@@ -20,5 +22,9 @@ public class WeaponStat {
 
     public int getStatValue() {
         return statValue;
+    }
+
+    public int getTierType() {
+        return tierType;
     }
 }

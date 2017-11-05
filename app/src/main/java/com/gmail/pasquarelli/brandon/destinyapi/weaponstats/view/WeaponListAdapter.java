@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,22 +17,16 @@ import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStatContainer;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.viewmodel.WeaponStatsViewModel;
 
-import java.util.ArrayList;
-
 
 public class WeaponListAdapter extends BaseAdapter {
 
     private String TAG = "WeaponListAdp";
     WeaponStatsViewModel statsViewModel;
+    private int rowItemHeight;
 
     public WeaponListAdapter(AppCompatActivity activity) {
         statsViewModel = ViewModelProviders.of(activity).get(WeaponStatsViewModel.class);
-        statsViewModel.getWeaponStats().observe(activity, new Observer<ArrayList<WeaponStatContainer>>() {
-            @Override
-            public void onChanged(@Nullable ArrayList<WeaponStatContainer> weaponStatContainers) {
-                updateList();
-            }
-        });
+        statsViewModel.getWeaponStats().observe(activity, weaponStatContainers -> updateList());
     }
 
     @Override
@@ -64,15 +59,20 @@ public class WeaponListAdapter extends BaseAdapter {
             return LayoutInflater.from(parent.getContext()).inflate(
                     R.layout.weapon_stat_container, parent, false);
 
+        if (rowItemHeight == 0) {
+            DisplayMetrics metrics = gridItemView.getResources().getDisplayMetrics();
+            rowItemHeight = (int) metrics.density * 24;
+        }
+
+
         TextView statLabel = gridItemView.findViewById(R.id.stat_label);
         ListView weaponList = gridItemView.findViewById(R.id.weapon_list_for_stat);
         ViewGroup.LayoutParams params = weaponList.getLayoutParams();
-        params.height = (statContainer.getWeaponListSize() * 72);
-//        weaponList.setLayoutParams(params);
+        params.height = (statContainer.getWeaponListSize() * rowItemHeight);
+        weaponList.setLayoutParams(params);
         weaponList.setAdapter(new WeaponItemAdapter(statContainer.getWeapons()));
 
         statLabel.setText(statContainer.getStatName());
-        Log.v(TAG, "Loading position: " + position);
         return gridItemView;
     }
 

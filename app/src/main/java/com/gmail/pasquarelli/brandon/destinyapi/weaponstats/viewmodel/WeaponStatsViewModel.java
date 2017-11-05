@@ -241,14 +241,9 @@ public class WeaponStatsViewModel extends ViewModel {
             return;
         for (Map.Entry entry : statContainerByHash.entrySet()) {
             long statHash = (Long) entry.getKey();
-            if (statHash == 1345609583L && item.displayProperties.name.equals("Merciless"))
-                Log.v(TAG, "debug");
-
-            WeaponStatContainer container = statContainerByHash.get(entry.getKey());
-            if (!item.itemStats.stats.containsKey(entry.getKey())) {
-                long statHashCode = (Long) entry.getKey();
-                item.itemStats.stats.put(statHashCode, new ItemStat(statHashCode));
-            }
+            WeaponStatContainer container = statContainerByHash.get(statHash);
+            if (!item.itemStats.stats.containsKey(statHash))
+                item.itemStats.stats.put(statHash, new ItemStat(statHash));
             container.insertToList(item);
         }
     }

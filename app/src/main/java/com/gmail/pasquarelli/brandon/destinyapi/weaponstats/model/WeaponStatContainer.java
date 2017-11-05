@@ -3,6 +3,7 @@ package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model;
 import android.util.Log;
 
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
+import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public class WeaponStatContainer {
 
     public void clearList() {
         statList.clear();
+        containsNonZeroItem = false;
     }
 
     /**
@@ -113,16 +115,22 @@ public class WeaponStatContainer {
      */
     public void insertToList(InventoryItemDefinition item) {
         int statValue = -1;
+        int weaponTier;
+        if (item.inventoryProperties != null)
+            weaponTier = item.inventoryProperties.tierType;
+        else
+            weaponTier = InventoryProperties.TIER_TYPE_SUPERIOR;
 
         if (item.itemStats.stats.get(statHash) != null) {
+
             statValue = item.itemStats.stats.get(statHash).statValue;
             if (statValue > 0)
                 containsNonZeroItem = true;
             statList.add(new WeaponStat(item.displayProperties.name,
-                    statValue));
+                    statValue, weaponTier));
         }
         else
-            statList.add(new WeaponStat(item.displayProperties.name,0));
+            statList.add(new WeaponStat(item.displayProperties.name,0, weaponTier));
     }
 
     /**
