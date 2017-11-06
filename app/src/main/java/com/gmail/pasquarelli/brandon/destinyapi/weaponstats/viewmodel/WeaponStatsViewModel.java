@@ -217,7 +217,6 @@ public class WeaponStatsViewModel extends ViewModel {
                 continue;
             addItemToAllContainers(item);
         }
-        long totalTimeSorting = 0L;
         for (Map.Entry entry : statContainerByHash.entrySet()) {
             WeaponStatContainer container = (WeaponStatContainer) entry.getValue();
             if (container.getWeaponListSize() == 0)
@@ -226,14 +225,9 @@ public class WeaponStatsViewModel extends ViewModel {
             if (!container.hasNonZeroValueItem())
                 continue;
 
-            long startTime = System.currentTimeMillis();
-//            container.mergeSort();
             container.bubbleSortList();
-            long endTime = System.currentTimeMillis();
-            totalTimeSorting = totalTimeSorting + (endTime - startTime);
             gridList.add(container);
         }
-        Log.v(TAG, "total time sorting: " + totalTimeSorting);
         statsList.setValue(gridList);
     }
 

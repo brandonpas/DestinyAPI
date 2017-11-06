@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -23,7 +24,9 @@ import android.widget.TextView;
 
 import com.gmail.pasquarelli.brandon.destinyapi.MainApplication;
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
 import com.gmail.pasquarelli.brandon.destinyapi.view.GridLayoutManager;
+import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStat;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStatContainer;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.viewmodel.WeaponStatsViewModel;
 
@@ -47,6 +50,8 @@ public class WeaponStatsActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     GridLayoutManager layoutManager;
     private Spinner weaponSpinner;
+    private int legendaryColor;
+    private int exoticColor;
     final private int HANDLER_MSG = 9001;
 
     @Override
@@ -146,34 +151,11 @@ public class WeaponStatsActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onComplete() {
-
-                    }
+                    public void onComplete() { }
                 });
-
-
-
-
-//        ScrollView scrollView = findViewById(R.id.weapon_grid_scrollview);
-//        GridLayout grid = findViewById(R.id.weapon_grid_layout);
-//
-//        ViewGroup.LayoutParams params = scrollView.getLayoutParams();
-//        ViewGroup.LayoutParams gridParams = grid.getLayoutParams();
-//
-//        params.height = 1000;
-//        gridParams.height = 1000;
-//
-//        grid.setLayoutParams(gridParams);
-//        scrollView.setLayoutParams(params);
-//
-//        grid.invalidate();
-//        grid.requestLayout();
-//        scrollView.invalidate();
-//        scrollView.requestLayout();
     }
 
     private void createLayoutManager() {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
 
         layoutManager = new GridLayoutManager() {
             @Override
@@ -183,26 +165,49 @@ public class WeaponStatsActivity extends AppCompatActivity {
                 WeaponStatContainer statContainer = (WeaponStatContainer) o;
 
                 TextView statLabel = gridItemView.findViewById(R.id.stat_label);
-                ListView weaponList = gridItemView.findViewById(R.id.weapon_list_for_stat);
-                weaponList.setAdapter(new WeaponItemAdapter(statContainer.getWeapons()));
+                LinearLayout weaponList = gridItemView.findViewById(R.id.weapon_list_for_stat_linear);
+
+                for(WeaponStat stat : statContainer.getWeapons()){
+                    View weaponView = getWeaponStatView(weaponList, stat);
+                    weaponList.addView(weaponView);
+                }
                 statLabel.setText(statContainer.getStatName());
                 return gridItemView;
-            }
-
-            @Override
-            public int getItemViewHeight(Object o) {
-                int containerHeader = 36 * (int) metrics.density;
-                WeaponStatContainer statContainer = (WeaponStatContainer) o;
-                int listSize = statContainer.getWeaponListSize();
-                if (listSize == 0)
-                    return 0;
-                else
-                    return (containerHeader) + (listSize * 15 * (int) (metrics.density));
             }
         };
     }
 
     public static Intent getActivityIntent(Context context) {
         return new Intent(context, WeaponStatsActivity.class);
+    }
+
+    private View getWeaponStatView(ViewGroup parent, WeaponStat stat) {
+        View weaponView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.weapon_item_row, null);
+
+        if (stat == null)
+            return weaponView;
+
+        weaponView.setOnClickListener(view -> {
+            Log.v(TAG, stat.getWeaponName() + " was clicked!");
+        });
+        TextView weaponName = weaponView.findViewById(R.id.weapon_name);
+        TextView statValue = weaponView.findViewById(R.id.weapon_stat_value);
+
+        if (stat.getTierType() == InventoryProperties.TIER_TYPE_SUPERIOR) {
+            if (legendaryColor == 0)
+                legendaryColor = getResources().getColor(R.color.legendary_item_purple);
+            weaponView.setBackgroundColor(legendaryColor);
+        }
+
+        if (stat.getTierType() == InventoryProperties.TIER_TYPE_EXOTIC) {
+            if (exoticColor == 0)
+                exoticColor = getResources().getColor(R.color.exotic_item_yellow);
+            weaponView.setBackgroundColor(exoticColor);
+        }
+
+        weaponName.setText(stat.getWeaponName());
+        statValue.setText(String.valueOf(stat.getStatValue()));
+        return weaponView;
     }
 }
