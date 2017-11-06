@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     app:theme="@style/AppTheme"
+    android:id="@+id/weapon_constraint_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -23,22 +24,28 @@
         android:entries="@array/weapon_list_values"
         android:background="@drawable/weapon_stat_spinner_bg"/>
 
-
-    <GridView
-        android:id="@+id/weapon_grid"
+    <ScrollView
+        android:id="@+id/weapon_grid_scrollview"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/weapon_type"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:numColumns="auto_fit"
-        android:columnWidth="160dp"
-        android:stretchMode="columnWidth"
-        android:horizontalSpacing="8dp"
-        android:verticalSpacing="8dp"/>
+        android:layout_marginTop="8dp"
+        android:fillViewport="true">
 
+        <GridLayout
+            android:id="@+id/weapon_grid_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/weapon_grid_scrollview"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"/>
+
+    </ScrollView>
 
     <ProgressBar
         android:id="@+id/weapon_stat_query_progress"

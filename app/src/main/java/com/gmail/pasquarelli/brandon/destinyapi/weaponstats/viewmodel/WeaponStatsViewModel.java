@@ -8,7 +8,6 @@ import android.util.Log;
 import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
 import com.gmail.pasquarelli.brandon.destinyapi.database.QueryHelper;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.ContentDatabase;
-import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentInventoryItemEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentStatEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
@@ -78,6 +77,12 @@ public class WeaponStatsViewModel extends ViewModel {
             return null;
         else
             return statsList.getValue().get(position);
+    }
+
+    public ArrayList<WeaponStatContainer> getWeaponStatArray() {
+        if (statsList == null)
+            return null;
+        return statsList.getValue();
     }
 
     /**
@@ -239,6 +244,9 @@ public class WeaponStatsViewModel extends ViewModel {
     void addItemToAllContainers(InventoryItemDefinition item) {
         if (item.displayProperties == null || item.displayProperties.name == null)
             return;
+        if (statContainerByHash == null)
+            return;
+
         for (Map.Entry entry : statContainerByHash.entrySet()) {
             long statHash = (Long) entry.getKey();
             WeaponStatContainer container = statContainerByHash.get(statHash);

@@ -54,6 +54,9 @@ public class WeaponItemAdapter extends BaseAdapter {
         if (stat == null)
             return weaponItemView;
 
+        weaponItemView.setOnClickListener(view -> {
+            Log.v(TAG, stat.getWeaponName() + " was clicked!");
+        });
         TextView weaponName = weaponItemView.findViewById(R.id.weapon_name);
         TextView statValue = weaponItemView.findViewById(R.id.weapon_stat_value);
 
@@ -71,7 +74,6 @@ public class WeaponItemAdapter extends BaseAdapter {
 
         weaponName.setText(stat.getWeaponName());
         statValue.setText(String.valueOf(stat.getStatValue()));
-        Log.v(TAG, "Loading position: " + position);
         return weaponItemView;
     }
 }
