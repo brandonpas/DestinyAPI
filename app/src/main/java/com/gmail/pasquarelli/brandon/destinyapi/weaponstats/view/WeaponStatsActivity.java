@@ -4,11 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,9 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -31,15 +25,10 @@ import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStatCont
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.viewmodel.WeaponStatsViewModel;
 
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
-import io.reactivex.Completable;
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
 import io.reactivex.schedulers.Schedulers;
 
 public class WeaponStatsActivity extends AppCompatActivity {
@@ -52,7 +41,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
     private Spinner weaponSpinner;
     private int legendaryColor;
     private int exoticColor;
-    final private int HANDLER_MSG = 9001;
+    private int labelSeparatorColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +50,6 @@ public class WeaponStatsActivity extends AppCompatActivity {
 
         initViews();
         initViewModel();
-    }
-
-    protected void onStop(){
-        super.onStop();
-        layoutManager.destructViews(weaponLayout);
     }
 
     void initViews() {
@@ -118,7 +102,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
     }
 
     /**
-     * Construct the view for each weapon stat container.
+     * Construct the view for each weapon stat container in the ArrayList returned.
      * @param weaponStatContainers The list containing the WeaponStatContainers
      */
     private void createStatContainerViews(ArrayList<WeaponStatContainer> weaponStatContainers) {
@@ -155,32 +139,9 @@ public class WeaponStatsActivity extends AppCompatActivity {
                 });
     }
 
-    private void createLayoutManager() {
-
-        layoutManager = new GridLayoutManager() {
-            @Override
-            public View getItemView(Object o) {
-                View gridItemView = LayoutInflater.from(getApplicationContext()).inflate(
-                        R.layout.weapon_stat_container, null);
-                WeaponStatContainer statContainer = (WeaponStatContainer) o;
-
-                TextView statLabel = gridItemView.findViewById(R.id.stat_label);
-                LinearLayout weaponList = gridItemView.findViewById(R.id.weapon_list_for_stat_linear);
-
-                for(WeaponStat stat : statContainer.getWeapons()){
-                    View weaponView = getWeaponStatView(weaponList, stat);
-                    weaponList.addView(weaponView);
-                }
-                statLabel.setText(statContainer.getStatName());
-                return gridItemView;
-            }
-        };
-    }
-
-    public static Intent getActivityIntent(Context context) {
-        return new Intent(context, WeaponStatsActivity.class);
-    }
-
+    /**
+     * Create the WeaponStat view and
+     */
     private View getWeaponStatView(ViewGroup parent, WeaponStat stat) {
         View weaponView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.weapon_item_row, null);
@@ -209,5 +170,49 @@ public class WeaponStatsActivity extends AppCompatActivity {
         weaponName.setText(stat.getWeaponName());
         statValue.setText(String.valueOf(stat.getStatValue()));
         return weaponView;
+    }
+
+    /**
+     * Create the Grid Layout Manager to be used for determining the number of columns
+     * based on device orientation.
+     */
+    private void createLayoutManager() {
+        layoutManager = new GridLayoutManager() {
+
+            /**
+             * Inflate and populate the WeaponStatContainer view within the GridLayout.
+             * @param o In this case, the WeaponStatContainer
+             * @return The WeaponStatContainer view with all items included.
+             */
+            @Override
+            public View getItemView(Object o) {
+                View gridItemView = LayoutInflater.from(getApplicationContext()).inflate(
+                        R.layout.weapon_stat_container, null);
+                WeaponStatContainer statContainer = (WeaponStatContainer) o;
+
+                TextView statLabel = gridItemView.findViewById(R.id.stat_label);
+                LinearLayout weaponList = gridItemView.findViewById(R.id.weapon_list_for_stat_linear);
+
+                for(WeaponStat stat : statContainer.getWeapons()){
+                    View weaponView = getWeaponStatView(weaponList, stat);
+                    weaponList.addView(weaponView);
+                    View divider = new View(weaponList.getContext());
+                    ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT, 1);
+                    divider.setLayoutParams(params);
+
+                    if (labelSeparatorColor == 0)
+                        labelSeparatorColor = weaponList.getContext().getResources().getColor(R.color.divider_dark);
+                    divider.setBackgroundColor(labelSeparatorColor);
+                    weaponList.addView(divider);
+                }
+                statLabel.setText(statContainer.getStatName());
+                return gridItemView;
+            }
+        };
+    }
+
+    public static Intent getActivityIntent(Context context) {
+        return new Intent(context, WeaponStatsActivity.class);
     }
 }

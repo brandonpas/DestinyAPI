@@ -2,6 +2,8 @@ package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model;
 
 import android.support.annotation.NonNull;
 
+import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
+
 public class WeaponStat {
 
     private String weaponName;
@@ -9,6 +11,18 @@ public class WeaponStat {
     private int tierType;
 
     private WeaponStat() { }
+
+    public WeaponStat(InventoryItemDefinition item, long statHash) {
+        statValue = 0;
+        weaponName = item.displayProperties.name;
+
+        if (item.inventoryProperties != null)
+            tierType = item.inventoryProperties.tierType;
+
+        if (item.itemStats != null && item.itemStats.stats != null &&
+                item.itemStats.stats.get(statHash) != null)
+            statValue = item.itemStats.stats.get(statHash).statValue;
+    }
 
     public WeaponStat(@NonNull String itemName, int value, int tier) {
         weaponName = itemName;
