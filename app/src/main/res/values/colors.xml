@@ -20,6 +20,9 @@
 
     <!-- Weapon Stat Screen -->
     <color name="weapon_stat_container_dark">#212121</color>
+    <color name="selected_weapon_color_1">#2196F3</color>
+    <color name="selected_weapon_color_2">#4CAF50</color>
+    <color name="selected_weapon_color_3">#E91E63</color>
 
     <!-- Inventory Item Colors -->
     <color name="legendary_item_purple">#623C6F</color>

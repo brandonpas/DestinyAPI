@@ -28,6 +28,7 @@ public class MainApplication extends Application{
                 DatabaseStructure.CONTENT_DB_NAME)
                 .addMigrations(DatabaseManager.MIGRATION_2_3)
                 .addMigrations(DatabaseManager.MIGRATION_3_4)
+                .addMigrations(DatabaseManager.MIGRATION_4_5)
                 .build();
     }
 

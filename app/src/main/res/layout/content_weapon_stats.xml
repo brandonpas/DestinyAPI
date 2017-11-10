@@ -24,6 +24,13 @@
             android:entries="@array/weapon_list_values"
             android:background="@drawable/weapon_stat_spinner_bg"/>
 
+        <com.gmail.pasquarelli.brandon.destinyapi.view.MultiSelectSpinner
+            android:id="@+id/multi_select_perk_filter"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/activity_small_margin"
+            android:background="@drawable/weapon_stat_spinner_bg" />
+
         <ScrollView
             android:id="@+id/weapon_grid_scrollview"
             android:layout_width="match_parent"
@@ -47,6 +54,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
-        android:visibility="invisible"/>
+        android:visibility="invisible"
+        android:indeterminate="true"/>
 
 </FrameLayout>

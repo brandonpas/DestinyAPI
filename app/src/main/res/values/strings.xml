@@ -21,6 +21,10 @@
     <string name="milestones_label">MILESTONES</string>
     <string name="title_activity_weapon_stats">WeaponStatsActivity</string>
 
+
+    <!-- Weapon Stats screen -->
+    <string name="weapon_perk_filter_dialog_title">Weapon Perks</string>
+
     <string-array name="weapon_list_values">
         <item>Auto Rifle</item>
         <item>Fusion Rifle</item>

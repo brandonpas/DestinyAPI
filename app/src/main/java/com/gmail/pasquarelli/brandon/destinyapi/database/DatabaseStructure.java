@@ -12,6 +12,7 @@ public class DatabaseStructure {
     public static final String CONTENT_MILESTONES_TABLE_NAME = "DestinyMilestoneDefinition";
     public static final String CONTENT_INVENTORY_ITEMS_TABLE_NAME = "DestinyInventoryItemDefinition";
     public static final String CONTENT_STAT_TABLE_NAME = "DestinyStatDefinition";
+    public static final String CONTENT_SANDBOX_PERK_TABLE_NAME = "DestinySandboxPerkDefinition";
 
     // Columns
     public static final String COLUMN_ID = "id";

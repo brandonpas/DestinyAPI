@@ -115,22 +115,14 @@ public class WeaponStatContainer {
      */
     public void insertToList(InventoryItemDefinition item) {
         int statValue = -1;
-        int weaponTier;
-        if (item.inventoryProperties != null)
-            weaponTier = item.inventoryProperties.tierType;
-        else
-            weaponTier = InventoryProperties.TIER_TYPE_SUPERIOR;
-
         if (item.itemStats.stats.get(statHash) != null) {
-
             statValue = item.itemStats.stats.get(statHash).statValue;
             if (statValue > 0)
                 containsNonZeroItem = true;
-            statList.add(new WeaponStat(item.displayProperties.name,
-                    statValue, weaponTier));
+            statList.add(new WeaponStat(item, statHash));
         }
         else
-            statList.add(new WeaponStat(item.displayProperties.name,0, weaponTier));
+            statList.add(new WeaponStat(item, statHash));
     }
 
     /**

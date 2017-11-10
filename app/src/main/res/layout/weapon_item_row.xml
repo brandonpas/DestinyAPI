@@ -4,29 +4,46 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/general_background"
-    android:paddingLeft="@dimen/activity_small_margin"
-    android:paddingRight="@dimen/activity_small_margin">
+    android:padding="@dimen/activity_very_small_margin">
 
-    <TextView
-        android:id="@+id/weapon_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:textColor="@color/white_text"
-        android:textSize="@dimen/normal_text"
-        android:fontFamily="@font/adobe_garamond_regular_body"/>
-
-    <TextView
-        android:id="@+id/weapon_stat_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/weapon_item_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:textColor="@color/white_text"
-        android:textSize="@dimen/normal_text"
-        android:fontFamily="@font/adobe_garamond_regular_body"/>
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/general_background"
+        android:paddingLeft="@dimen/activity_small_margin"
+        android:paddingRight="@dimen/activity_small_margin">
+
+        <TextView
+            android:id="@+id/weapon_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:textColor="@color/white_text"
+            android:textSize="@dimen/normal_text"
+            android:text="Weapon Name"
+            android:fontFamily="@font/haas_grotesk_55_sub_heading"/>
+
+        <TextView
+            android:id="@+id/weapon_stat_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:textColor="@color/white_text"
+            android:textSize="@dimen/normal_text"
+            android:text="0"
+            android:fontFamily="@font/haas_grotesk_55_sub_heading"/>
+
+
+    </android.support.constraint.ConstraintLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>

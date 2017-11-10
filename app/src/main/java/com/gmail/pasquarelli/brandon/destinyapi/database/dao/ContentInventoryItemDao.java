@@ -19,12 +19,11 @@ public interface ContentInventoryItemDao {
 //     * @param weaponClass An integer representing the item subclass
      * @return The ContentInventoryItemEntity.
      */
-//    @Query("SELECT * FROM " + DatabaseStructure.CONTENT_INVENTORY_ITEMS_TABLE_NAME)
     @Query("SELECT * FROM " + DatabaseStructure.CONTENT_INVENTORY_ITEMS_TABLE_NAME +
     " WHERE " + DatabaseStructure.COLUMN_JSON + " like '%itemType\":3,%' " )
-//            " WHERE " + DatabaseStructure.COLUMN_JSON + " like '%itemType\":3,%'")
-//    DatabaseStructure.COLUMN_JSON + " like '%itemSubType\"::weaponClass,%'")
-//    DatabaseStructure.COLUMN_JSON + " like " + "%itemSubType")
     Single<List<ContentInventoryItemEntity>> getWeaponsByClass();
 
+    @Query("SELECT * FROM " + DatabaseStructure.CONTENT_INVENTORY_ITEMS_TABLE_NAME +
+    " WHERE " + DatabaseStructure.COLUMN_ID + " in (:perkHashList)")
+    Single<List<ContentInventoryItemEntity>> getPerksByHashList(List<Integer> perkHashList);
 }

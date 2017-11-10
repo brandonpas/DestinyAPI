@@ -41,6 +41,12 @@ public class DatabaseManager {
         }
     };
 
+    public static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+        }
+    };
+
     /**
      *
      * @param context Reference to the activity's context

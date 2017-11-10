@@ -61,6 +61,9 @@ public class InventoryItemDefinition {
     @SerializedName("computedStats")
     public HashMap<String, ItemStat> itemComputedStats;
 
+    @SerializedName("sockets")
+    public SocketBlock socketBlock;
+
     @SerializedName("hash")
     public String hashCode;
 }

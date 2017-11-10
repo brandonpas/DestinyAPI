@@ -8,11 +8,14 @@ import android.util.Log;
 import com.gmail.pasquarelli.brandon.destinyapi.database.DatabaseStructure;
 import com.gmail.pasquarelli.brandon.destinyapi.database.QueryHelper;
 import com.gmail.pasquarelli.brandon.destinyapi.database.databases.ContentDatabase;
+import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentInventoryItemEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.database.entity.ContentStatEntity;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
 import com.gmail.pasquarelli.brandon.destinyapi.model.ItemStat;
+import com.gmail.pasquarelli.brandon.destinyapi.model.SocketCategory;
 import com.gmail.pasquarelli.brandon.destinyapi.model.StatDefinition;
+import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.SocketFilter;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStatContainer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,6 +33,7 @@ import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.Nullable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -41,6 +45,9 @@ public class WeaponStatsViewModel extends ViewModel {
     private MutableLiveData<Boolean> containersInitialized;
     private HashMap<Long,WeaponStatContainer> statContainerByHash;
     private HashMap<String,Boolean> hiddenStats;
+    private HashMap<String, Boolean> socketHashesFound;
+    private SocketFilter socketFilter = new SocketFilter();
+    private MutableLiveData<String[]> filterList;
 
     public MutableLiveData<ArrayList<WeaponStatContainer>> getWeaponStats() {
         if (statsList == null) {
@@ -54,6 +61,17 @@ public class WeaponStatsViewModel extends ViewModel {
             containersInitialized = new MutableLiveData<>();
         }
         return containersInitialized;
+    }
+
+    public MutableLiveData<String[]> getFilterList() {
+        if (filterList == null) {
+            filterList = new MutableLiveData<>();
+        }
+        return filterList;
+    }
+
+    public HashMap<String,Boolean> getSocketHashesFound() {
+        return socketHashesFound;
     }
 
     /**
@@ -79,6 +97,10 @@ public class WeaponStatsViewModel extends ViewModel {
             return statsList.getValue().get(position);
     }
 
+    /**
+     * Obtain the full WeaponStatContainer list.
+     * @return List of WeaponStatContainer
+     */
     public ArrayList<WeaponStatContainer> getWeaponStatArray() {
         if (statsList == null)
             return null;
@@ -88,7 +110,7 @@ public class WeaponStatsViewModel extends ViewModel {
     /**
      * Clear the weapon list in each WeaponStatContainer
      */
-    void clearAllContainers() {
+    private void clearAllContainers() {
         if (statContainerByHash == null)
             return;
 
@@ -96,6 +118,54 @@ public class WeaponStatsViewModel extends ViewModel {
             WeaponStatContainer container = (WeaponStatContainer) entry.getValue();
             container.clearList();
         }
+    }
+
+    /**
+     * Query the database for the list of perk (or Socket) names.
+     * @param db Reference to Room database.
+     * @param signedPerkHashes The list of signed integers representing the perk hashes
+     */
+    public void getWeaponPerks(ContentDatabase db, ArrayList<Integer> signedPerkHashes) {
+        db.contentInventoryItemDao()
+                .getPerksByHashList(signedPerkHashes)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SingleObserver<List<ContentInventoryItemEntity>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) { }
+
+                    @Override
+                    public void onSuccess(List<ContentInventoryItemEntity> contentInventoryItemEntities) {
+                        retrievePerkInfo(contentInventoryItemEntities);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.v(TAG,"getWeaponPerks onError");
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    /**
+     * Build the Array of perk items.
+     * @param entities List of entities from the database.
+     */
+    private void retrievePerkInfo(List<ContentInventoryItemEntity> entities) {
+        Gson gson = new GsonBuilder().create();
+        ArrayList<String> perks = new ArrayList<>();
+        for (ContentInventoryItemEntity entity : entities) {
+            JsonReader jsonReader = new JsonReader(entity.getJsonAsStream());
+            InventoryItemDefinition item = gson.fromJson(jsonReader, InventoryItemDefinition.class);
+            if (item.displayProperties != null && item.displayProperties.name != null) {
+                perks.add(item.displayProperties.name);
+            }
+        }
+        String[] perkItems = new String[perks.size()];
+        for (int location = 0; location < perks.size(); location++) {
+            perkItems[location] = perks.get(location);
+        }
+        filterList.setValue(perkItems);
     }
 
     /**
@@ -197,45 +267,92 @@ public class WeaponStatsViewModel extends ViewModel {
      * to each WeaponStatContainer.
      * @param db A reference to the Room database.
      * @param weaponClass Integer representing the weapon class.
+     * @param filters HashMap of unsigned integers represented as a String to be used as a filter
+     *                for the weapons. If this is null, then a new weapon class was selected and
+     *                results will not be filtered.
      */
-    public void getStats(ContentDatabase db, int weaponClass) {
-        clearAllContainers();
+    public void getStats(ContentDatabase db, int weaponClass, @Nullable HashMap<String, Boolean> filters) {
 
-        Cursor mCursor = db.query(QueryHelper.queryItemsByTypeAndSubType(InventoryItemDefinition.ITEM_TYPE_WEAPON,
-                weaponClass), new String[0]);
-        ArrayList<WeaponStatContainer> gridList = new ArrayList<>();
+        Completable.fromAction(() -> {
+            clearAllContainers();
 
-        Gson gson = new GsonBuilder().create();
-        while (mCursor.moveToNext()) {
-            byte[] json = mCursor.getString(mCursor.getColumnIndex(DatabaseStructure.COLUMN_JSON)).getBytes();
-            Reader reader = new InputStreamReader(new ByteArrayInputStream(json));
-            JsonReader jsonReader = new JsonReader(reader);
+            if (socketHashesFound == null)
+                socketHashesFound = new HashMap<>();
 
-            InventoryItemDefinition item = gson.fromJson(jsonReader, InventoryItemDefinition.class);
-            if (item.inventoryProperties.tierType != InventoryProperties.TIER_TYPE_SUPERIOR &&
-                    item.inventoryProperties.tierType != InventoryProperties.TIER_TYPE_EXOTIC)
-                continue;
-            addItemToAllContainers(item);
-        }
-        for (Map.Entry entry : statContainerByHash.entrySet()) {
-            WeaponStatContainer container = (WeaponStatContainer) entry.getValue();
-            if (container.getWeaponListSize() == 0)
-                continue;
+            if (filters == null)
+                socketHashesFound.clear();
 
-            if (!container.hasNonZeroValueItem())
-                continue;
+            Cursor mCursor = db.query(QueryHelper.queryItemsByTypeAndSubType(InventoryItemDefinition.ITEM_TYPE_WEAPON,
+                    weaponClass), new String[0]);
+            ArrayList<WeaponStatContainer> gridList = new ArrayList<>();
 
-            container.bubbleSortList();
-            gridList.add(container);
-        }
-        statsList.setValue(gridList);
+            Gson gson = new GsonBuilder().create();
+            while (mCursor.moveToNext()) {
+                byte[] json = mCursor.getString(mCursor.getColumnIndex(DatabaseStructure.COLUMN_JSON)).getBytes();
+                Reader reader = new InputStreamReader(new ByteArrayInputStream(json));
+                JsonReader jsonReader = new JsonReader(reader);
+
+                InventoryItemDefinition item = gson.fromJson(jsonReader, InventoryItemDefinition.class);
+                if (item.inventoryProperties.tierType != InventoryProperties.TIER_TYPE_SUPERIOR &&
+                        item.inventoryProperties.tierType != InventoryProperties.TIER_TYPE_EXOTIC)
+                    continue;
+
+                // extract the valid sockets and add to the arraylist for the filter
+                if (item.socketBlock != null && item.socketBlock.socketCategories != null &&
+                        item.socketBlock.socketCategories.length > 0) {
+                    for (SocketCategory category : item.socketBlock.socketCategories) {
+                        if (category.socketCategoryHash.equals(SocketCategory.WEAPON_PERK_CATEGORY_HASH)) {
+                            // we've found the weapon socket perks. locate the indices in the socketEntries
+                            // and add each entry to the list if it isn't already there.
+                            for (int socketIndex : category.socketEntryIndices) {
+                                if (!socketHashesFound.containsKey(item.socketBlock.socketEntries[socketIndex].unsignedSocketHash))
+                                    socketHashesFound.put(item.socketBlock.socketEntries[socketIndex].unsignedSocketHash, true);
+                            }
+                            // stop looking for weapon socket perks
+                            break;
+                        }
+                    }
+                }
+                addItemToAllContainers(item);
+            }
+
+            // Do some validation on the WeaponStatContainers before adding to the list.
+            for (Map.Entry entry : statContainerByHash.entrySet()) {
+                WeaponStatContainer container = (WeaponStatContainer) entry.getValue();
+                if (container.getWeaponListSize() == 0)
+                    continue;
+
+                if (!container.hasNonZeroValueItem())
+                    continue;
+
+                container.bubbleSortList();
+                gridList.add(container);
+            }
+
+            // this is the list of unsigned integers. need to convert to signed int,
+            // query the InventoryItemDefinition table to get the list of perks, populate the
+            // multi-select spinner, and then we're good.
+            ArrayList<String> hashKeys = new ArrayList<>();
+            for (Map.Entry entry : socketHashesFound.entrySet()){
+                hashKeys.add((String) entry.getKey());
+            }
+            socketFilter.setUnsignedSocketHashes(hashKeys);
+            getWeaponPerks(db, socketFilter.getSignedSocketHashes());
+
+
+            // Setting this value will notify observers that we've completed processing and begin updating Views.
+            statsList.setValue(gridList);
+        }).observeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+
     }
 
     /**
      * Add the weapon provided to each WeaponStatContainer.
      * @param item InventoryItemDefinition representing the weapon
      */
-    void addItemToAllContainers(InventoryItemDefinition item) {
+    private void addItemToAllContainers(InventoryItemDefinition item) {
         if (item.displayProperties == null || item.displayProperties.name == null)
             return;
         if (statContainerByHash == null)
@@ -249,4 +366,32 @@ public class WeaponStatsViewModel extends ViewModel {
             container.insertToList(item);
         }
     }
+
+//    public void getAllPerks(ContentDatabase db) {
+//        db.contentSandboxPerkDao()
+//                .getAllPerks()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new SingleObserver<List<ContentSandboxPerkEntity>>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) { }
+//
+//                    @Override
+//                    public void onSuccess(List<ContentSandboxPerkEntity> contentSandboxPerkEntities) {
+//                        Gson gson = new GsonBuilder().create();
+//                        for (ContentSandboxPerkEntity entity : contentSandboxPerkEntities) {
+//                            JsonReader jsonReader = new JsonReader(entity.getJsonAsStream());
+//                            SandboxPerkDefinition perk = gson.fromJson(jsonReader, SandboxPerkDefinition.class);
+//                            if (perk.displayProperties != null
+//                                    && perk.displayProperties.name != null)
+//                                Log.v(TAG, perk.displayProperties.name);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//    }
 }

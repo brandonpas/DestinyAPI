@@ -9,6 +9,7 @@ public class WeaponStat {
     private String weaponName;
     private int statValue;
     private int tierType;
+    private String weaponHash;
 
     private WeaponStat() { }
 
@@ -22,6 +23,8 @@ public class WeaponStat {
         if (item.itemStats != null && item.itemStats.stats != null &&
                 item.itemStats.stats.get(statHash) != null)
             statValue = item.itemStats.stats.get(statHash).statValue;
+
+        weaponHash = item.hashCode;
     }
 
     public WeaponStat(@NonNull String itemName, int value, int tier) {
@@ -41,4 +44,6 @@ public class WeaponStat {
     public int getTierType() {
         return tierType;
     }
+
+    public String getWeaponHash() { return weaponHash; }
 }
