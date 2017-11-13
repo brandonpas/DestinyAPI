@@ -3,6 +3,7 @@ package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model;
 import android.support.annotation.NonNull;
 
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
+import com.gmail.pasquarelli.brandon.destinyapi.model.SocketEntry;
 
 public class WeaponStat {
 
@@ -10,6 +11,7 @@ public class WeaponStat {
     private int statValue;
     private int tierType;
     private String weaponHash;
+    private SocketEntry[] socketEntries;
 
     private WeaponStat() { }
 
@@ -23,6 +25,9 @@ public class WeaponStat {
         if (item.itemStats != null && item.itemStats.stats != null &&
                 item.itemStats.stats.get(statHash) != null)
             statValue = item.itemStats.stats.get(statHash).statValue;
+
+        if (item.socketBlock != null && item.socketBlock.socketEntries != null)
+            socketEntries = item.socketBlock.socketEntries;
 
         weaponHash = item.hashCode;
     }
@@ -46,4 +51,6 @@ public class WeaponStat {
     }
 
     public String getWeaponHash() { return weaponHash; }
+
+    public SocketEntry[] getSocketEntries() { return socketEntries; }
 }

@@ -19,22 +19,14 @@ import io.reactivex.subjects.PublishSubject;
 public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinner implements
         DialogInterface.OnMultiChoiceClickListener {
 
-    PublishSubject<Boolean[]> selectedItemsObservable;
+    PublishSubject<boolean[]> selectedItemsObservable = PublishSubject.create();
 
-    String[] itemValuesForSelection = null;
+    String[] itemValuesForSelection;
+    String[] itemHashesForSelection;
     boolean[] selectedItems = null;
     boolean[] priorSelections = null;
-    String spinnerDisplayText = null;
 
-    ArrayAdapter<String> dataAdapter;
-
-    public MultiSelectSpinner(Context context) {
-        super(context);
-
-        dataAdapter = new ArrayAdapter<>(context, R.layout.weapon_perk_filter_row_item);
-        super.setAdapter(dataAdapter);
-        selectedItemsObservable = PublishSubject.create();
-    }
+    ArrayAdapter<Object> dataAdapter;
 
     /**
      * Required constructor for Android to inflate the layout.
@@ -44,11 +36,11 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
     public MultiSelectSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        dataAdapter = new ArrayAdapter<>(context, R.layout.weapon_perk_filter_row_item);
+        dataAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
         super.setAdapter(dataAdapter);
     }
 
-    public PublishSubject<Boolean[]> getSelectedItemsObservable() {
+    public PublishSubject<boolean[]> getSelectedItemsObservable() {
         return selectedItemsObservable;
     }
 
@@ -82,14 +74,15 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(getResources().getString(R.string.weapon_perk_filter_dialog_title));
         builder.setMultiChoiceItems(itemValuesForSelection, selectedItems, this);
-        spinnerDisplayText = getSelectedValues();
         builder.setPositiveButton("Filter", (dialog, which) -> {
             System.arraycopy(selectedItems, 0, priorSelections, 0, selectedItems.length);
+            selectedItemsObservable.onNext(selectedItems);
+            dataAdapter.add(getSelectedValues());
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dataAdapter.clear();
-            dataAdapter.add(spinnerDisplayText);
             System.arraycopy(priorSelections, 0, selectedItems, 0, priorSelections.length);
+            dataAdapter.add(getSelectedValues());
         });
         builder.show();
         return true;
@@ -102,17 +95,16 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
 
     /**
      * Set the list of values to display in the multi-select list.
-     * @param items Array of values
+     * @param itemValues Array of values
      */
-    public void setValueList(String[] items) {
-        itemValuesForSelection = items;
+    public void setValueList(String[] itemValues, String[] itemIds) {
+        itemValuesForSelection = itemValues;
+        itemHashesForSelection = itemIds;
         selectedItems = new boolean[itemValuesForSelection.length];
         priorSelections = new boolean[itemValuesForSelection.length];
         dataAdapter.clear();
-        dataAdapter.add(itemValuesForSelection[0]);
+        dataAdapter.add(getSelectedValues());
         Arrays.fill(selectedItems, false);
-        selectedItems[0] = true;
-        priorSelections[0] = true;
     }
 
     /**
@@ -153,6 +145,9 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
      * @return The List.
      */
     public List<Integer> getSelectedItems() {
+        if (itemHashesForSelection == null)
+            return null;
+
         List<Integer> selection = new LinkedList<>();
         for (int i = 0; i < itemValuesForSelection.length; ++i) {
             if (selectedItems[i])
@@ -177,6 +172,16 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
                 sb.append(itemValuesForSelection[i]);
             }
         }
+        if(!found)
+            sb.append("Filter by perk:");
         return sb.toString();
+    }
+
+    /**
+     * Returns the IDs of the selected items as a string array.
+     * @return String of selected values
+     */
+    public String[] getSelectedHashes() {
+        return itemHashesForSelection;
     }
 }

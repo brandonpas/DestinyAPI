@@ -1,11 +1,11 @@
 package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.view;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -22,20 +22,21 @@ import android.widget.TextView;
 import com.gmail.pasquarelli.brandon.destinyapi.MainApplication;
 import com.gmail.pasquarelli.brandon.destinyapi.R;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
+import com.gmail.pasquarelli.brandon.destinyapi.model.SocketEntry;
 import com.gmail.pasquarelli.brandon.destinyapi.view.GridLayoutManager;
 import com.gmail.pasquarelli.brandon.destinyapi.view.MultiSelectSpinner;
-import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.SocketFilter;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStat;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStatContainer;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.viewmodel.WeaponStatsViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class WeaponStatsActivity extends AppCompatActivity {
@@ -83,33 +84,32 @@ public class WeaponStatsActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.weapon_stat_query_progress);
         weaponLayout = findViewById(R.id.weapon_grid_layout);
+        multiSelectSpinner = findViewById(R.id.multi_select_perk_filter);
+//        multiSelectSpinner.setAdapter(new PerkFilterAdapter(this,
+//                R.layout.weapon_perk_filter_row_item, statsViewModel));
+
         createLayoutManager();
 
-//        String[] array = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"};
-        multiSelectSpinner = findViewById(R.id.multi_select_perk_filter);
-//        multiSelectSpinner.setValueList(array);
-//        multiSelectSpinner.setSelection(0);
+        multiSelectSpinner.getSelectedItemsObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DisposableObserver<boolean[]>() {
+                    @Override
+                    public void onNext(boolean[] selected) {
+                        Log.v(TAG, "Multi-select spinner onNext");
+                        Log.v(TAG,"selected items: " + selected.length);
+                        processFilter();
+                    }
 
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.v(TAG, "Multi-select spinner onError");
+                        e.printStackTrace();
+                    }
 
-//        multiSelectSpinner.getSelectedItemsObservable()
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new DisposableObserver<Boolean[]>() {
-//                    @Override
-//                    public void onNext(Boolean[] booleans) {
-//                        Log.v(TAG, "Multi-select spinner onNext");
-//                        Log.v(TAG,"selected items: " + booleans.length);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.v(TAG, "Multi-select spinner onError");
-//                        e.printStackTrace();
-//                    }
-//
-//                    @Override
-//                    public void onComplete() { }
-//                });
+                    @Override
+                    public void onComplete() { }
+                });
     }
 
     /**
@@ -123,17 +123,26 @@ public class WeaponStatsActivity extends AppCompatActivity {
             int position = weaponSpinner.getSelectedItemPosition();
             int selection = getResources().getIntArray(R.array.weapon_list_ids)[position];
             MainApplication mainApplication = (MainApplication) getApplication();
-            statsViewModel.getStats(mainApplication.getDatabase(), selection, null);
+            statsViewModel.getStats(mainApplication.getDatabase(), selection);
         });
         statsViewModel.getWeaponStats().observe(this, this::processStatsResults);
 
         showProgress();
         MainApplication mainApplication = (MainApplication) getApplication();
         statsViewModel.queryStats(mainApplication.getDatabase());
-//        statsViewModel.getAllPerks(mainApplication.getDatabase());
-        statsViewModel.getFilterList().observe(this, strings -> {
-            multiSelectSpinner.setValueList(strings);
-        });
+
+        statsViewModel.getSocketFilterList().observe(this, socketArray -> {
+                    if (socketArray == null || socketArray.length <= 0)
+                        return;
+                    String[] names = new String[socketArray.length];
+                    String[] hashs = new String[socketArray.length];
+                    for (int pos = 0; pos < socketArray.length; pos++) {
+                        names[pos] = socketArray[pos].getPerkName();
+                        hashs[pos] = socketArray[pos].getUnsignedIntHash();
+                    }
+                    multiSelectSpinner.setValueList(names, hashs);
+                }
+        );
     }
 
     /**
@@ -147,7 +156,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
                 int selection = getResources().getIntArray(R.array.weapon_list_ids)[position];
                 showProgress();
                 MainApplication mainApplication = (MainApplication) getApplication();
-                statsViewModel.getStats(mainApplication.getDatabase(), selection, null);
+                statsViewModel.getStats(mainApplication.getDatabase(), selection);
             }
 
             @Override
@@ -166,13 +175,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
     }
 
     private void processStatsResults(ArrayList<WeaponStatContainer> stats) {
-        updatePerkFilter();
         createStatContainerViews(stats);
-    }
-
-    private void updatePerkFilter() {
-
-
     }
 
     /**
@@ -183,9 +186,9 @@ public class WeaponStatsActivity extends AppCompatActivity {
         if (weaponLayout == null || weaponLayout.getWidth() <= 0)
             return;
 
-        Log.v(TAG, "create container views. grid layout width: " + weaponLayout.getWidth());
         if (weaponStatContainers.size() <= 0)
             return;
+
         layoutManager.destructViews(weaponLayout);
         viewReference.clear();
         layoutManager.constructViews(weaponLayout, weaponStatContainers)
@@ -217,7 +220,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
      * Create the WeaponStat view and
      */
     private View getWeaponStatView(ViewGroup parent, WeaponStat stat, String containerName) {
-        View weaponView = LayoutInflater.from(parent.getContext())
+        @SuppressLint("InflateParams") View weaponView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.weapon_item_row, null);
 
         ConstraintLayout itemView = weaponView.findViewById(R.id.weapon_item_info);
@@ -225,20 +228,16 @@ public class WeaponStatsActivity extends AppCompatActivity {
         if (stat == null)
             return weaponView;
 
-        weaponView.setOnClickListener(view -> changeWeaponSelectState(stat) );
+        weaponView.setOnClickListener(view -> changeWeaponSelectState(stat));
         TextView weaponName = weaponView.findViewById(R.id.weapon_name);
         TextView statValue = weaponView.findViewById(R.id.weapon_stat_value);
 
-//        if (stat.getTierType() == InventoryProperties.TIER_TYPE_SUPERIOR) {
-            itemView.setBackgroundColor(legendaryColor);
-            weaponView.setBackgroundColor(legendaryColor);
-//        }
+        itemView.setBackgroundColor(legendaryColor);
+        weaponView.setBackgroundColor(legendaryColor);
 
-        if (stat.getTierType() == InventoryProperties.TIER_TYPE_EXOTIC) {
-//            itemView.setBackgroundColor(exoticColor);
-//            weaponView.setBackgroundColor(exoticColor);
+        if (stat.getTierType() == InventoryProperties.TIER_TYPE_EXOTIC)
             weaponName.setTextColor(exoticColor);
-        }
+
         ArrayList<Object> viewRef = viewReference.get(stat.getWeaponHash());
         if (viewRef == null)
             viewRef = new ArrayList<>();
@@ -253,7 +252,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
     /**
      * Change the items selection state. If not yet selected, highlight it by creating a stroke around the view
      * for the weapon in each container. If already selected, remove the highlight
-     * @param weapon
+     * @param weapon WeaponStat item to be highlighted/reverted.
      */
     private void changeWeaponSelectState(WeaponStat weapon) {
 
@@ -317,7 +316,8 @@ public class WeaponStatsActivity extends AppCompatActivity {
              */
             @Override
             public View getItemView(Object o) {
-                View gridItemView = LayoutInflater.from(getApplicationContext()).inflate(
+
+                @SuppressLint("InflateParams") View gridItemView = LayoutInflater.from(getApplicationContext()).inflate(
                         R.layout.weapon_stat_container, null);
                 WeaponStatContainer statContainer = (WeaponStatContainer) o;
 
@@ -325,7 +325,36 @@ public class WeaponStatsActivity extends AppCompatActivity {
                 LinearLayout weaponList = gridItemView.findViewById(R.id.weapon_list_for_stat_linear);
 
                 for(WeaponStat stat : statContainer.getWeapons()){
+
+                    List<Integer> selectedItems = multiSelectSpinner.getSelectedItems();
+                    if (selectedItems != null) {
+                        // if theres selected perks to filter on, and the stat has no perks then skip
+                        if (stat.getSocketEntries() == null)
+                            continue;
+
+                        boolean hasAllPerks = true;
+                        // Make sure each selected perk is in the stat before including
+                        for (Integer perkInArray : selectedItems) {
+                            String unsignedIntPerk = multiSelectSpinner.getSelectedHashes()[perkInArray];
+                            boolean foundPerk = false;
+                            for (SocketEntry socketEntry : stat.getSocketEntries()) {
+                                if (socketEntry.unsignedSocketHash.equals(unsignedIntPerk)) {
+                                    foundPerk = true;
+                                    break;
+                                }
+                            }
+                            if (!foundPerk) {
+                                hasAllPerks = false;
+                                break;
+                            }
+                        }
+                        if (!hasAllPerks)
+                            continue;
+                    }
+
                     View weaponView = getWeaponStatView(weaponList, stat, statContainer.getStatName());
+
+
                     weaponList.addView(weaponView);
                     View divider = new View(weaponList.getContext());
                     ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
@@ -339,6 +368,10 @@ public class WeaponStatsActivity extends AppCompatActivity {
                 return gridItemView;
             }
         };
+    }
+
+    private void processFilter() {
+        createStatContainerViews(statsViewModel.getWeaponStatArray());
     }
 
     public static Intent getActivityIntent(Context context) {

@@ -3,7 +3,6 @@ package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model;
 import android.util.Log;
 
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
-import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,14 +108,13 @@ public class WeaponStatContainer {
     }
 
     /**
-     * Public call to insert the item into the WeaponStat list while maintaining descending
-     * order
-     * @param item
+     * Public call to insert the item into the WeaponStat list
+     * @param item Weapon to be inserted into the container
      */
     public void insertToList(InventoryItemDefinition item) {
-        int statValue = -1;
+
         if (item.itemStats.stats.get(statHash) != null) {
-            statValue = item.itemStats.stats.get(statHash).statValue;
+            int statValue = item.itemStats.stats.get(statHash).statValue;
             if (statValue > 0)
                 containsNonZeroItem = true;
             statList.add(new WeaponStat(item, statHash));

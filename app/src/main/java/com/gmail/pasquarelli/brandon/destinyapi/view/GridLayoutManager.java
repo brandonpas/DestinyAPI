@@ -11,12 +11,9 @@ import io.reactivex.Observable;
 
 public abstract class GridLayoutManager {
 
-    private String TAG = "GridLM";
-    private int defaultMargin = 8;
-
-    public Observable<ArrayList<View>> constructViews(ViewGroup parent, ArrayList<?> objectList) {
+    public Observable<ArrayList<View>> constructViews(View parent, ArrayList<?> objectList) {
         ArrayList<View> returnList = new ArrayList<>();
-
+        int defaultMargin = 8;
         if (parent == null)
             throw new RuntimeException("parent is null");
 
