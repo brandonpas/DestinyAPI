@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -21,10 +22,12 @@ import android.widget.TextView;
 
 import com.gmail.pasquarelli.brandon.destinyapi.MainApplication;
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryItemDefinition;
 import com.gmail.pasquarelli.brandon.destinyapi.model.InventoryProperties;
 import com.gmail.pasquarelli.brandon.destinyapi.model.SocketEntry;
 import com.gmail.pasquarelli.brandon.destinyapi.view.GridLayoutManager;
 import com.gmail.pasquarelli.brandon.destinyapi.view.MultiSelectSpinner;
+import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.SocketFilterItem;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStat;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.WeaponStatContainer;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.viewmodel.WeaponStatsViewModel;
@@ -140,7 +143,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
                         names[pos] = socketArray[pos].getPerkName();
                         hashs[pos] = socketArray[pos].getUnsignedIntHash();
                     }
-                    multiSelectSpinner.setValueList(names, hashs);
+                    multiSelectSpinner.setValueList(socketArray);
                 }
         );
     }
@@ -231,12 +234,27 @@ public class WeaponStatsActivity extends AppCompatActivity {
         weaponView.setOnClickListener(view -> changeWeaponSelectState(stat));
         TextView weaponName = weaponView.findViewById(R.id.weapon_name);
         TextView statValue = weaponView.findViewById(R.id.weapon_stat_value);
-
+        ImageView damageTypeView = weaponView.findViewById(R.id.weapon_stat_damage_type_image);
         itemView.setBackgroundColor(legendaryColor);
         weaponView.setBackgroundColor(legendaryColor);
 
         if (stat.getTierType() == InventoryProperties.TIER_TYPE_EXOTIC)
             weaponName.setTextColor(exoticColor);
+
+        Resources resources = getResources();
+        switch(stat.getDamageType()) {
+            case (InventoryItemDefinition.DAMAGE_TYPE_ARC):
+                damageTypeView.setBackground(resources.getDrawable(R.drawable.ic_damage_type_arc));
+                break;
+            case (InventoryItemDefinition.DAMAGE_TYPE_THERMAL):
+                damageTypeView.setBackground(resources.getDrawable(R.drawable.ic_damage_type_solar));
+                break;
+            case (InventoryItemDefinition.DAMAGE_TYPE_VOID):
+                damageTypeView.setBackground(resources.getDrawable(R.drawable.ic_damage_type_void));
+                break;
+            default:
+                break;
+        }
 
         ArrayList<Object> viewRef = viewReference.get(stat.getWeaponHash());
         if (viewRef == null)
@@ -258,9 +276,6 @@ public class WeaponStatsActivity extends AppCompatActivity {
 
         int availableIndex = -1;
         String weaponHash = weapon.getWeaponHash();
-        if (weapon.getTierType() != InventoryProperties.TIER_TYPE_SUPERIOR)
-            return;
-
         for (int selection=0; selection < selectedWeapons.length; selection++) {
 
             if (selectedWeapons[selection] == null) { availableIndex = selection;  continue; }
@@ -277,22 +292,16 @@ public class WeaponStatsActivity extends AppCompatActivity {
                 ArrayList<Object> views = viewReference.get(weapon.getWeaponHash());
                 for (Object tag : views) {
                     View weaponView = weaponLayout.findViewWithTag(tag);
-                    if (weapon.getTierType() == InventoryProperties.TIER_TYPE_SUPERIOR)
-                        weaponView.setBackgroundColor(legendaryColor);
-
-                    if (weapon.getTierType() == InventoryProperties.TIER_TYPE_EXOTIC)
-                        weaponView.setBackgroundColor(exoticColor);
+                    weaponView.setBackgroundColor(legendaryColor);
                 }
-
                 // we've found the previously selected item and have now completed "deselecting" it.
                 return;
             }
         }
 
-        // we haven't yet found the item and we have a place to
+        // we haven't yet found the item and we have a location to store the selection
         if (availableIndex > -1) {
             selectedWeapons[availableIndex] = weaponHash;
-
 
             ArrayList<Object> views = viewReference.get(weapon.getWeaponHash());
             for (Object tag : views) {
@@ -335,7 +344,8 @@ public class WeaponStatsActivity extends AppCompatActivity {
                         boolean hasAllPerks = true;
                         // Make sure each selected perk is in the stat before including
                         for (Integer perkInArray : selectedItems) {
-                            String unsignedIntPerk = multiSelectSpinner.getSelectedHashes()[perkInArray];
+                            SocketFilterItem item = (SocketFilterItem) multiSelectSpinner.getItemAtPosition(perkInArray);
+                            String unsignedIntPerk = item.getUnsignedIntHash();
                             boolean foundPerk = false;
                             for (SocketEntry socketEntry : stat.getSocketEntries()) {
                                 if (socketEntry.unsignedSocketHash.equals(unsignedIntPerk)) {

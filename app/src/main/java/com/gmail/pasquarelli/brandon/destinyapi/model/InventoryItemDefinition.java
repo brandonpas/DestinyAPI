@@ -43,6 +43,13 @@ public class InventoryItemDefinition {
     public static final int ITEM_SUB_TYPE_MASK = 19;
     public static final int ITEM_SUB_TYPE_SHADER = 20;
 
+    public static final int DAMAGE_TYPE_NONE = 0;
+    public static final int DAMAGE_TYPE_KINETIC = 1;
+    public static final int DAMAGE_TYPE_ARC = 2;
+    public static final int DAMAGE_TYPE_THERMAL = 3;
+    public static final int DAMAGE_TYPE_VOID = 4;
+    public static final int DAMAGE_TYPE_RAID = 5;
+
     @SerializedName("displayProperties")
     public DisplayProperties displayProperties;
 
@@ -66,4 +73,7 @@ public class InventoryItemDefinition {
 
     @SerializedName("hash")
     public String hashCode;
+
+    @SerializedName("defaultDamageType")
+    public int defaultDamageType;
 }

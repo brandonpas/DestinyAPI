@@ -12,6 +12,7 @@ public class WeaponStat {
     private int tierType;
     private String weaponHash;
     private SocketEntry[] socketEntries;
+    private int damageType = -1;
 
     private WeaponStat() { }
 
@@ -29,6 +30,7 @@ public class WeaponStat {
         if (item.socketBlock != null && item.socketBlock.socketEntries != null)
             socketEntries = item.socketBlock.socketEntries;
 
+        damageType = item.defaultDamageType;
         weaponHash = item.hashCode;
     }
 
@@ -53,4 +55,8 @@ public class WeaponStat {
     public String getWeaponHash() { return weaponHash; }
 
     public SocketEntry[] getSocketEntries() { return socketEntries; }
+
+    public int getDamageType() {
+        return damageType;
+    }
 }

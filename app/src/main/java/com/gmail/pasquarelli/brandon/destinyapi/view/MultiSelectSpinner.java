@@ -9,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.SocketFilterItem;
+import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.view.PerkFilterAdapter;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -20,12 +22,9 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
         DialogInterface.OnMultiChoiceClickListener {
 
     PublishSubject<boolean[]> selectedItemsObservable = PublishSubject.create();
-
-    String[] itemValuesForSelection;
-    String[] itemHashesForSelection;
     boolean[] selectedItems = null;
     boolean[] priorSelections = null;
-
+    SocketFilterItem[] itemValuesForSelection;
     ArrayAdapter<Object> dataAdapter;
 
     /**
@@ -35,13 +34,39 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
      */
     public MultiSelectSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         dataAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
         super.setAdapter(dataAdapter);
     }
 
     public PublishSubject<boolean[]> getSelectedItemsObservable() {
         return selectedItemsObservable;
+    }
+
+    public int getItemCount() {
+        if (itemValuesForSelection != null)
+            return itemValuesForSelection.length;
+        else
+            return 0;
+    }
+
+    @Override
+    public Object getItemAtPosition(int position) {
+        if (itemValuesForSelection != null)
+            return itemValuesForSelection[position];
+        else
+            return null;
+    }
+
+    public boolean itemSelectedAt(int position) {
+        return selectedItems[position];
+    }
+
+    @Override
+    public long getItemIdAtPosition(int position) {
+        if (itemValuesForSelection != null)
+            return itemValuesForSelection[position].getSignedIntHash();
+        else
+            return 0L;
     }
 
     /**
@@ -70,21 +95,29 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean performClick() {
-        //
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(getResources().getString(R.string.weapon_perk_filter_dialog_title));
-        builder.setMultiChoiceItems(itemValuesForSelection, selectedItems, this);
+        PerkFilterAdapter adapter = new PerkFilterAdapter(this);
+        builder.setAdapter(adapter, (dialog, which) -> { });
         builder.setPositiveButton("Filter", (dialog, which) -> {
             System.arraycopy(selectedItems, 0, priorSelections, 0, selectedItems.length);
-            selectedItemsObservable.onNext(selectedItems);
+            dataAdapter.clear();
             dataAdapter.add(getSelectedValues());
+            selectedItemsObservable.onNext(selectedItems);
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dataAdapter.clear();
             System.arraycopy(priorSelections, 0, selectedItems, 0, priorSelections.length);
             dataAdapter.add(getSelectedValues());
         });
-        builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.getListView().setOnItemClickListener((parent, view, position, id) -> {
+            if (selectedItems != null && position < selectedItems.length)
+                selectedItems[position] = !selectedItems[position];
+            else
+                throw new IllegalArgumentException("Argument 'which' is out of bounds.");
+        });
+        dialog.show();
         return true;
     }
 
@@ -95,11 +128,10 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
 
     /**
      * Set the list of values to display in the multi-select list.
-     * @param itemValues Array of values
+     * @param socketFilterItems Array of values
      */
-    public void setValueList(String[] itemValues, String[] itemIds) {
-        itemValuesForSelection = itemValues;
-        itemHashesForSelection = itemIds;
+    public void setValueList(SocketFilterItem[] socketFilterItems) {
+        itemValuesForSelection = socketFilterItems;
         selectedItems = new boolean[itemValuesForSelection.length];
         priorSelections = new boolean[itemValuesForSelection.length];
         dataAdapter.clear();
@@ -145,7 +177,7 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
      * @return The List.
      */
     public List<Integer> getSelectedItems() {
-        if (itemHashesForSelection == null)
+        if (itemValuesForSelection == null)
             return null;
 
         List<Integer> selection = new LinkedList<>();
@@ -154,6 +186,12 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
                 selection.add(i);
         }
         return selection;
+    }
+
+    public void changeStateAtPosition(int position) {
+        if (selectedItems != null && position < selectedItems.length) {
+            selectedItems[position] = !selectedItems[position];
+        }
     }
 
     /**
@@ -169,19 +207,11 @@ public class MultiSelectSpinner extends android.support.v7.widget.AppCompatSpinn
                 if (found)
                     sb.append(", ");
                 found = true;
-                sb.append(itemValuesForSelection[i]);
+                sb.append(itemValuesForSelection[i].getPerkName());
             }
         }
         if(!found)
             sb.append("Filter by perk:");
         return sb.toString();
-    }
-
-    /**
-     * Returns the IDs of the selected items as a string array.
-     * @return String of selected values
-     */
-    public String[] getSelectedHashes() {
-        return itemHashesForSelection;
     }
 }

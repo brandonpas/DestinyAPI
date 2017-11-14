@@ -1,26 +1,40 @@
 package com.gmail.pasquarelli.brandon.destinyapi.weaponstats.view;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.gmail.pasquarelli.brandon.destinyapi.R;
+import com.gmail.pasquarelli.brandon.destinyapi.view.MultiSelectSpinner;
 import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.model.SocketFilterItem;
-import com.gmail.pasquarelli.brandon.destinyapi.weaponstats.viewmodel.WeaponStatsViewModel;
 
+public class PerkFilterAdapter extends BaseAdapter {
 
-public class PerkFilterAdapter extends ArrayAdapter {
+    private MultiSelectSpinner spinnerList;
 
-    private WeaponStatsViewModel weaponStatsViewModel;
+    public PerkFilterAdapter(MultiSelectSpinner spinner) {
+        spinnerList = spinner;
+    }
 
-    public PerkFilterAdapter(@NonNull Context context, int resource, WeaponStatsViewModel viewModel) {
-        super(context, resource);
-        weaponStatsViewModel = viewModel;
+    @Override
+    public int getCount() {
+        return spinnerList.getItemCount();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return spinnerList.getItemAtPosition(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return spinnerList.getItemIdAtPosition(position);
     }
 
     @Override
@@ -28,12 +42,18 @@ public class PerkFilterAdapter extends ArrayAdapter {
         View returnView = LayoutInflater.from(parent.getContext()).inflate(R.layout.weapon_perk_filter_row_item,
                 parent, false);
 
-        SocketFilterItem item = weaponStatsViewModel.getSocketFilterItemAt(position);
+        SocketFilterItem item = (SocketFilterItem) spinnerList.getItemAtPosition(position);
         TextView perkName = returnView.findViewById(R.id.filter_perk_name);
         TextView perkDescription = returnView.findViewById(R.id.filter_perk_description);
+        CheckBox perkSelected = returnView.findViewById(R.id.filter_perk_selected);
 
         perkName.setText(item.getPerkName());
         perkDescription.setText(item.getPerkDescription());
+        perkSelected.setChecked(spinnerList.itemSelectedAt(position));
+        returnView.setOnClickListener(v -> {
+            spinnerList.changeStateAtPosition(position);
+            perkSelected.setChecked(spinnerList.itemSelectedAt(position));
+        });
 
         return returnView;
     }

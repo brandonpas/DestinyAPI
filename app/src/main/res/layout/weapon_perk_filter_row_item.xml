@@ -5,28 +5,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/filter_perk_name"
+    <CheckBox
+        android:id="@+id/filter_perk_selected"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:textSize="12sp"
-        android:text="Name"
-        android:paddingTop="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="@dimen/activity_small_margin"/>
 
-    <TextView
-        android:id="@+id/filter_perk_description"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/filter_perk_name"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:textSize="10sp"
-        android:text="Description"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="8dp"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/filter_perk_selected"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/filter_perk_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:textSize="14sp"
+            android:text="Name"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:fontFamily="@font/haas_grotesk_55_sub_heading"/>
+
+        <TextView
+            android:id="@+id/filter_perk_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="Description"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/haas_grotesk_55_sub_heading"/>
+    </LinearLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>
