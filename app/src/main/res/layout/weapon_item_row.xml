@@ -18,8 +18,8 @@
 
         <ImageView
             android:id="@+id/weapon_stat_damage_type_image"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="@dimen/weapon_damage_type_row_size"
+            android:layout_height="@dimen/weapon_damage_type_row_size"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_margin="@dimen/activity_very_small_margin"

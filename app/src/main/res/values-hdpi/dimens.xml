@@ -20,5 +20,7 @@
     <dimen name="milestone_description_text_size">12sp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
+    <!-- Weapon Stats screen -->
+    <dimen name="weapon_damage_type_row_size">10dp</dimen>
 
 </resources>
