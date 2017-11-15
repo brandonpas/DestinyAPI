@@ -88,11 +88,8 @@ public class WeaponStatsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.weapon_stat_query_progress);
         weaponLayout = findViewById(R.id.weapon_grid_layout);
         multiSelectSpinner = findViewById(R.id.multi_select_perk_filter);
-//        multiSelectSpinner.setAdapter(new PerkFilterAdapter(this,
-//                R.layout.weapon_perk_filter_row_item, statsViewModel));
 
         createLayoutManager();
-
         multiSelectSpinner.getSelectedItemsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -137,12 +134,6 @@ public class WeaponStatsActivity extends AppCompatActivity {
         statsViewModel.getSocketFilterList().observe(this, socketArray -> {
                     if (socketArray == null || socketArray.length <= 0)
                         return;
-                    String[] names = new String[socketArray.length];
-                    String[] hashs = new String[socketArray.length];
-                    for (int pos = 0; pos < socketArray.length; pos++) {
-                        names[pos] = socketArray[pos].getPerkName();
-                        hashs[pos] = socketArray[pos].getUnsignedIntHash();
-                    }
                     multiSelectSpinner.setValueList(socketArray);
                 }
         );

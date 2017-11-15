@@ -51,6 +51,10 @@ class PublicMilestonesAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        MilestoneDefinition milestone = viewModel.getMilestoneAt(position);
+        if (milestone == null)
+            return;
+
         View itemView = holder.itemView;
         TextView milestoneName = itemView.findViewById(R.id.milestone_name);
         TextView milestoneDescription = itemView.findViewById(R.id.milestone_description);
@@ -60,13 +64,11 @@ class PublicMilestonesAdapter extends RecyclerView.Adapter {
         milestoneName.setTypeface(subHeadingTypeFace);
         milestoneDescription.setTypeface(bodyTypeFace);
 
-        MilestoneDefinition milestone = viewModel.getMilestonesArray().get(position);
-
         // Utilize the Glide library to download image via the URL
         // and insert into the ImageView
-            Glide.with(itemView.getContext())
-                    .load(milestone.displayProperties.getIconUrl())
-                    .into(milestoneImage);
+        Glide.with(itemView.getContext())
+                .load(milestone.displayProperties.getIconUrl())
+                .into(milestoneImage);
 
 
         milestoneName.setText(milestone.displayProperties.name);

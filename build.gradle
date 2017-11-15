@@ -30,6 +30,7 @@ ext {
             glide : '4.1.1',
             glideAnnotation : '4.1.1',
             retrofit : '2.3.0',
+            okHttpLogInt : '3.4.1',
             rxAndroid : '2.0.1',
             rxJavaAdapter : '2.2.0',
             rxJava : '2.1.4'

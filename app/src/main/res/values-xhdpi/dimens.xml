@@ -13,8 +13,7 @@
 
     <!-- General Font Sizes -->
     <dimen name="sub_heading_text">16sp</dimen>
-    <dimen name="normal_text">12sp</dimen>
-
+    <dimen name="normal_text">10sp</dimen>
     <!-- Get Public Milestones screen -->
     <dimen name="public_milestones_row_item_height">32dp</dimen>
     <dimen name="milestone_name_text_size">18sp</dimen>

@@ -145,7 +145,6 @@ public class WeaponStatsViewModel extends ViewModel {
                 perkFilter.add(socketFilterItem);
             }
         }
-//        perkFilterHashes = new String[perkFilter.size()];
         SocketFilterItem[] perkFilterItems = new SocketFilterItem[perkFilter.size()];
         for (int location = 0; location < perkFilter.size(); location++)
             perkFilterItems[location] = perkFilter.get(location);
@@ -169,7 +168,7 @@ public class WeaponStatsViewModel extends ViewModel {
 
                     @Override
                     public void onSuccess(List<ContentStatEntity> contentStatEntity) {
-                        Log.v(TAG,"initStatHashMap onSuccess");
+                        Log.v(TAG,"queryStats onSuccess");
                         Log.v(TAG,"contentStatEntity: " + contentStatEntity.size());
                         initStatsHashMap(contentStatEntity);
                     }

@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -68,19 +67,12 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
         setupRecyclerView();
         initViewModels();
         setFonts();
-
-//        if (!isDatabaseInitialized()) {
-//            SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-//            model.relocateDatabase(this, preferences);
-//        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         fetchThisWeeksMilestones();
     }
 
+    /**
+     * Set the appropriate typeface for TextViews
+     */
     public void setFonts() {
         AssetManager am = getApplicationContext().getAssets();
         // Create Typeface objects
@@ -156,6 +148,11 @@ public class WeeklyMilestonesActivity extends AppCompatActivity {
         model.retrieveMilestoneDetails(db);
     }
 
+    /**
+     * Retrieve the Intent to launch this activity
+     * @param context Context of originating activity
+     * @return An Intent object
+     */
     public static Intent getIntent(Context context) {
         return new Intent(context, WeeklyMilestonesActivity.class);
     }
