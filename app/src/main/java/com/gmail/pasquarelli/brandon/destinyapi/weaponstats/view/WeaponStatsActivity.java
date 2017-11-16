@@ -217,7 +217,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
         @SuppressLint("InflateParams") View weaponView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.weapon_item_row, null);
 
-        ConstraintLayout itemView = weaponView.findViewById(R.id.weapon_item_info);
+        LinearLayout itemView = weaponView.findViewById(R.id.weapon_item_info);
 
         if (stat == null)
             return weaponView;
