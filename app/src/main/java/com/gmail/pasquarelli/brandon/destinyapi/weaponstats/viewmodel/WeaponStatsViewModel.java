@@ -43,7 +43,6 @@ public class WeaponStatsViewModel extends ViewModel {
 
     private String TAG = "WeaponStatVM";
     private MutableLiveData<ArrayList<WeaponStatContainer>> statsList;
-    private MutableLiveData<Boolean> containersInitialized;
     private HashMap<Long,WeaponStatContainer> statContainerByHash;
     private HashMap<String,Boolean> hiddenStats;
     private HashMap<String, Boolean> socketHashesFound;
@@ -58,10 +57,8 @@ public class WeaponStatsViewModel extends ViewModel {
         return statsList;
     }
 
-    public MutableLiveData<Boolean> getContainersInitialized() {
-        if (containersInitialized == null)
-            containersInitialized = new MutableLiveData<>();
-        return containersInitialized;
+    public boolean getStatContainersInit() {
+        return statContainerByHash != null;
     }
 
     public MutableLiveData<SocketFilterItem[]> getSocketFilterList() {
@@ -157,7 +154,7 @@ public class WeaponStatsViewModel extends ViewModel {
      * Then initialize the WeaponStatContainer hashmap.
      * @param db A reference to the Room database instance.
      */
-    public void queryStats(ContentDatabase db) {
+    public void queryStats(ContentDatabase db, int weaponSelect) {
         db.contentStatDao()
                 .getAllStats()
                 .subscribeOn(Schedulers.io())
@@ -170,7 +167,7 @@ public class WeaponStatsViewModel extends ViewModel {
                     public void onSuccess(List<ContentStatEntity> contentStatEntity) {
                         Log.v(TAG,"queryStats onSuccess");
                         Log.v(TAG,"contentStatEntity: " + contentStatEntity.size());
-                        initStatsHashMap(contentStatEntity);
+                        initStatsHashMap(contentStatEntity, db, weaponSelect);
                     }
 
                     @Override
@@ -199,7 +196,7 @@ public class WeaponStatsViewModel extends ViewModel {
      * @param statsList The list of records representing each stat returned by the database.
      */
     @SuppressLint("UseSparseArrays")
-    private void initStatsHashMap(List<ContentStatEntity> statsList) {
+    private void initStatsHashMap(List<ContentStatEntity> statsList, ContentDatabase db, int weaponSelect) {
         Completable.fromAction(() -> {
             if (hiddenStats == null) {
                 hiddenStats = new HashMap<>();
@@ -235,7 +232,7 @@ public class WeaponStatsViewModel extends ViewModel {
                     @Override
                     public void onComplete() {
                         Log.v(TAG,"initStatsHashMap onComplete");
-                        containersInitialized.setValue(true);
+                        getStats(db, weaponSelect);
                     }
 
                     @Override
@@ -298,13 +295,16 @@ public class WeaponStatsViewModel extends ViewModel {
             }
 
             // Do some validation on the WeaponStatContainers before adding to the list.
-            for (Map.Entry entry : statContainerByHash.entrySet()) {
-                WeaponStatContainer container = (WeaponStatContainer) entry.getValue();
-                if (container.getWeaponListSize() == 0)
+            for (Map.Entry<Long,WeaponStatContainer> entry : statContainerByHash.entrySet()) {
+                WeaponStatContainer container = entry.getValue();
+                if (container.getWeaponListSize() == 0) {
                     continue;
+                }
 
-                if (!container.hasNonZeroValueItem())
+                if (!container.hasNonZeroValueItem()) {
+                    container.clearList();
                     continue;
+                }
 
                 container.bubbleSortList();
                 gridList.add(container);

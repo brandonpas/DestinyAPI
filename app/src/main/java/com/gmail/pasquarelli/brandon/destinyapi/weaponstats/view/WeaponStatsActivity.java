@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -62,17 +61,27 @@ public class WeaponStatsActivity extends AppCompatActivity {
     private String[] selectedWeapons = new String[3];
     private HashMap<String, ArrayList<Object>> viewReference = new HashMap<>();
     private int[] selectionColors;
-
-
+    private int weaponClassSelectionPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weapon_stats);
 
         initViews();
         initViewModel();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!statsViewModel.getStatContainersInit()) {
+            MainApplication mainApplication = (MainApplication) getApplication();
+            int weaponSelect = getResources().getIntArray(R.array.weapon_list_ids)[weaponClassSelectionPosition];
+            statsViewModel.queryStats(mainApplication.getDatabase(), weaponSelect); // this will create stats views
+        }
+     }
 
     void initViews() {
         Resources resources = getResources();
@@ -88,28 +97,22 @@ public class WeaponStatsActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.weapon_stat_query_progress);
         weaponLayout = findViewById(R.id.weapon_grid_layout);
         multiSelectSpinner = findViewById(R.id.multi_select_perk_filter);
-
         createLayoutManager();
         multiSelectSpinner.getSelectedItemsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DisposableObserver<boolean[]>() {
                     @Override
-                    public void onNext(boolean[] selected) {
-                        Log.v(TAG, "Multi-select spinner onNext");
-                        Log.v(TAG,"selected items: " + selected.length);
-                        processFilter();
-                    }
+                    public void onNext(boolean[] selected) { processFilter(); }
 
                     @Override
-                    public void onError(Throwable e) {
-                        Log.v(TAG, "Multi-select spinner onError");
-                        e.printStackTrace();
-                    }
+                    public void onError(Throwable e) { e.printStackTrace(); }
 
                     @Override
                     public void onComplete() { }
                 });
+
+        initWeaponSpinner();
     }
 
     /**
@@ -117,26 +120,21 @@ public class WeaponStatsActivity extends AppCompatActivity {
      */
     void initViewModel() {
         statsViewModel = ViewModelProviders.of(this).get(WeaponStatsViewModel.class);
-        statsViewModel.getContainersInitialized().observe(this, aBoolean -> {
-            initWeaponSpinner();
-
-            int position = weaponSpinner.getSelectedItemPosition();
-            int selection = getResources().getIntArray(R.array.weapon_list_ids)[position];
-            MainApplication mainApplication = (MainApplication) getApplication();
-            statsViewModel.getStats(mainApplication.getDatabase(), selection);
-        });
-        statsViewModel.getWeaponStats().observe(this, this::processStatsResults);
-
-        showProgress();
-        MainApplication mainApplication = (MainApplication) getApplication();
-        statsViewModel.queryStats(mainApplication.getDatabase());
-
+        statsViewModel.getWeaponStats().observe(this,
+                this::processStatsResults
+        );
         statsViewModel.getSocketFilterList().observe(this, socketArray -> {
                     if (socketArray == null || socketArray.length <= 0)
                         return;
                     multiSelectSpinner.setValueList(socketArray);
                 }
         );
+    }
+
+    private void retrieveStatsForClass() {
+        MainApplication mainApplication = (MainApplication) getApplication();
+        int weaponSpinnerSelection = getResources().getIntArray(R.array.weapon_list_ids)[weaponSpinner.getSelectedItemPosition()];
+        statsViewModel.getStats(mainApplication.getDatabase(),weaponSpinnerSelection);
     }
 
     /**
@@ -147,10 +145,13 @@ public class WeaponStatsActivity extends AppCompatActivity {
         weaponSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                int selection = getResources().getIntArray(R.array.weapon_list_ids)[position];
+                if (view == null)
+                    return;
+                if (weaponClassSelectionPosition == position)
+                    return;
+                weaponClassSelectionPosition = position;
                 showProgress();
-                MainApplication mainApplication = (MainApplication) getApplication();
-                statsViewModel.getStats(mainApplication.getDatabase(), selection);
+                retrieveStatsForClass();
             }
 
             @Override
@@ -169,6 +170,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
     }
 
     private void processStatsResults(ArrayList<WeaponStatContainer> stats) {
+        hideProgress();
         createStatContainerViews(stats);
     }
 
@@ -177,15 +179,12 @@ public class WeaponStatsActivity extends AppCompatActivity {
      * @param weaponStatContainers The list containing the WeaponStatContainers
      */
     private void createStatContainerViews(ArrayList<WeaponStatContainer> weaponStatContainers) {
-        if (weaponLayout == null || weaponLayout.getWidth() <= 0)
-            return;
-
         if (weaponStatContainers.size() <= 0)
             return;
 
         layoutManager.destructViews(weaponLayout);
         viewReference.clear();
-        layoutManager.constructViews(weaponLayout, weaponStatContainers)
+        layoutManager.constructViewsAsync(weaponLayout, weaponStatContainers)
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<ArrayList<View>>() {
@@ -211,7 +210,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
     }
 
     /**
-     * Create the WeaponStat view and
+     * Create the WeaponStat view
      */
     private View getWeaponStatView(ViewGroup parent, WeaponStat stat, String containerName) {
         @SuppressLint("InflateParams") View weaponView = LayoutInflater.from(parent.getContext())
@@ -328,7 +327,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
 
                     List<Integer> selectedItems = multiSelectSpinner.getSelectedItems();
                     if (selectedItems != null) {
-                        // if theres selected perks to filter on, and the stat has no perks then skip
+                        // if there's selected perks to filter on, and the stat has no perks then skip
                         if (stat.getSocketEntries() == null)
                             continue;
 
@@ -354,8 +353,6 @@ public class WeaponStatsActivity extends AppCompatActivity {
                     }
 
                     View weaponView = getWeaponStatView(weaponList, stat, statContainer.getStatName());
-
-
                     weaponList.addView(weaponView);
                     View divider = new View(weaponList.getContext());
                     ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
@@ -370,6 +367,7 @@ public class WeaponStatsActivity extends AppCompatActivity {
             }
         };
     }
+
 
     private void processFilter() {
         createStatContainerViews(statsViewModel.getWeaponStatArray());
